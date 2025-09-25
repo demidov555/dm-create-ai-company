@@ -1,0 +1,63 @@
+<mat-card class="details-card">
+  <mat-card-content>
+    <h2 class="mat-title mb-4">Project Details</h2>
+
+    <div class="details-grid">
+      <!-- Goals & Requirements -->
+      <div class="goals-section">
+        <h3 class="mat-subheading-2 mb-2">Project Goals</h3>
+        <mat-card class="mat-elevation-z0 goal-card">
+          <mat-card-content>
+            <p class="mat-body-2">
+              Create a fully functional e-commerce platform with product
+              listings, shopping cart, checkout process, and user accounts. The
+              site should have a modern, responsive design and integrate with
+              payment processors.
+            </p>
+          </mat-card-content>
+        </mat-card>
+
+        <h3 class="mat-subheading-2 mt-4 mb-2">Technical Requirements</h3>
+        <mat-card class="mat-elevation-z0 goal-card">
+          <mat-card-content>
+            <ul class="requirements-list">
+              <li>Angular 20 frontend with Material UI components</li>
+              <li>Node.js backend with Express</li>
+              <li>Non-relational database (MongoDB)</li>
+              <li>JWT authentication</li>
+              <li>Stripe payment integration</li>
+              <li>Responsive design for all devices</li>
+            </ul>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <!-- Timeline -->
+      <div class="timeline-section">
+        <h3 class="mat-subheading-2 mb-2">Project Timeline</h3>
+        <mat-card class="mat-elevation-z0 timeline-card">
+          <mat-card-content>
+            <div class="timeline-item" *ngFor="let phase of phases">
+              <div class="timeline-labels">
+                <span class="mat-caption">{{ phase.name }}</span>
+                <span class="mat-caption text-muted">{{ phase.duration }}</span>
+              </div>
+              <mat-progress-bar
+                [value]="phase.progress"
+                [color]="phase.color"
+              ></mat-progress-bar>
+            </div>
+
+            <div class="completion mt-4">
+              <h4 class="mat-caption mb-2">Estimated Completion</h4>
+              <div class="completion-date">
+                <mat-icon class="calendar-icon">calendar_today</mat-icon>
+                <span class="mat-body-2">June 15, 2023</span>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </div>
+  </mat-card-content>
+</mat-card>

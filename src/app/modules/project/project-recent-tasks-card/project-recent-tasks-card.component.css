@@ -1,0 +1,51 @@
+.tasks-card {
+  padding: 1rem;
+  margin-bottom: 2rem;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.task-title {
+  font-weight: 500;
+  color: #1f2937;
+}
+
+.task-desc {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.assignee {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  .avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    &.blue {
+      background-color: #bfdbfe;
+      color: #2563eb;
+    }
+
+    &.green {
+      background-color: #bbf7d0;
+      color: #059669;
+    }
+  }
+
+  .assignee-name {
+    font-weight: 500;
+    color: #1f2937;
+  }
+}

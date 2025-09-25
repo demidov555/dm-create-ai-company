@@ -1,0 +1,79 @@
+.ai-team-card {
+  padding: 1rem;
+  margin-bottom: 2rem;
+}
+
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1.5rem;
+}
+
+.team-member-card {
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.member-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.avatar {
+  height: 48px;
+  width: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &.green {
+    background-color: #e6f4ea;
+    mat-icon {
+      color: #4caf50;
+    }
+  }
+
+  &.yellow {
+    background-color: #fff9e6;
+    mat-icon {
+      color: #fbc02d;
+    }
+  }
+}
+
+.member-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.progress-section {
+  margin-top: 1rem;
+
+  .progress-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    color: #6b7280;
+    margin-bottom: 0.25rem;
+  }
+}
+
+.member-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 1rem 1rem;
+}
+
+.add-button {
+  margin-top: 2rem;
+  display: flex;
+  justify-content: flex-start;
+
+  mat-icon {
+    font-size: 18px;
+    vertical-align: middle;
+  }
+}

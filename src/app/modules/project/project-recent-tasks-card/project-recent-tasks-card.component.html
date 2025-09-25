@@ -1,0 +1,58 @@
+<mat-card class="tasks-card">
+  <mat-card-content>
+    <div class="header">
+      <h2 class="mat-title">Recent Tasks</h2>
+      <button mat-button color="primary">View all</button>
+    </div>
+
+    <table mat-table [dataSource]="tasks" class="mat-elevation-z1">
+
+      <!-- Task Column -->
+      <ng-container matColumnDef="task">
+        <th mat-header-cell *matHeaderCellDef> Task </th>
+        <td mat-cell *matCellDef="let task">
+          <div class="task-title">{{ task.title }}</div>
+          <div class="task-desc">{{ task.description }}</div>
+        </td>
+      </ng-container>
+
+      <!-- Assigned To Column -->
+      <ng-container matColumnDef="assignedTo">
+        <th mat-header-cell *matHeaderCellDef> Assigned To </th>
+        <td mat-cell *matCellDef="let task">
+          <div class="assignee">
+            <div class="avatar" [ngClass]="task.avatarColor">
+              <mat-icon>person</mat-icon>
+            </div>
+            <span class="assignee-name">{{ task.assignee }}</span>
+          </div>
+        </td>
+      </ng-container>
+
+      <!-- Status Column -->
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef> Status </th>
+        <td mat-cell *matCellDef="let task">
+          <mat-chip [color]="task.statusColor" selected>{{ task.status }}</mat-chip>
+        </td>
+      </ng-container>
+
+      <!-- Due Date Column -->
+      <ng-container matColumnDef="dueDate">
+        <th mat-header-cell *matHeaderCellDef> Due Date </th>
+        <td mat-cell *matCellDef="let task"> {{ task.dueDate }} </td>
+      </ng-container>
+
+      <!-- Actions Column -->
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef> </th>
+        <td mat-cell *matCellDef="let task">
+          <button mat-button color="primary">View</button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+  </mat-card-content>
+</mat-card>

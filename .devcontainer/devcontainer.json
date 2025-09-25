@@ -1,0 +1,16 @@
+{
+  "name": "Angular Dev",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "forwardPorts": [4200],
+  "postCreateCommand": "npm install -g @angular/cli && npm install",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "angular.ng-template",
+        "dbaeumer.vscode-eslint"
+      ]
+    }
+  }
+}
