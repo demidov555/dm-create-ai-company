@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
@@ -18,7 +18,5 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
   ],
 })
 export class ProjectStatusCardComponent implements OnInit {
-  constructor() {}
-
-  ngOnInit() {}
+  ngOnInit() { }
 }

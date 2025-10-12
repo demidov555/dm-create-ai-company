@@ -9,6 +9,7 @@ import { ProjectTeamCardComponent } from '../../modules/project/project-team-car
 import { ProjectDetailsCardComponent } from '../../modules/project/project-details-card/project-details-card.component';
 import { ProjectRecentTasksCardComponent } from '../../modules/project/project-recent-tasks-card/project-recent-tasks-card.component';
 import { ActivatedRoute } from '@angular/router';
+import { ProjectCommonChatComponent } from '../../modules/project/project-common-chat/project-common-chat.component';
 
 @Component({
   selector: 'app-project',
@@ -17,6 +18,7 @@ import { ActivatedRoute } from '@angular/router';
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [
+    ProjectCommonChatComponent,
     ProjectStatusCardComponent,
     ProjectTeamCardComponent,
     ProjectDetailsCardComponent,

@@ -1,2 +1,55 @@
-node_modules
-.angular
+# Angular-specific
+/dist/
+/dist-server/
+/e2e/.cache/
+*.js.map
+*.tsbuildinfo
+node_modules/
+npm-debug.log
+yarn-error.log
+.angular/
+coverage/
+
+# Codespaces-specific
+.devcontainer/
+.codespaces/
+
+# IDE и редакторы
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# Логи
+*.log
+logs/
+*.log.*
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Прочие временные файлы
+*.bak
+*.swp
+*~
+*.tmp
+
+# Тестовые отчёты и кэши
+/coverage/
+*.lcov
+/test-results/
+
+# Конфигурации и секреты
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.env
+secrets/
+*.key
+*.pem
