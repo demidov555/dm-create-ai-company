@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Plus, Folder, MoreVertical, Trash2, Edit } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../components/ui/button";
@@ -10,11 +11,16 @@ import {
   DropdownMenuTrigger,
 } from "../components/ui/dropdown-menu";
 import { Input } from "../components/ui/input";
-import { useProjects } from "../App";
+import { useAppDispatch, useAppSelector } from "../store/hooks";
+import { selectProjects } from "../store/selectors/projectSelectors";
+import { deleteProject } from "../store/slices/projectsSlice";
+import { openCreateProjectDialog } from "../store/slices/uiSlice";
 
 export function ProjectsPage() {
   const navigate = useNavigate();
-  const { projects, deleteProject, openCreateDialog } = useProjects();
+  const dispatch = useAppDispatch();
+  const projects = useAppSelector(selectProjects);
+  const [searchQuery, setSearchQuery] = useState("");
   const getStatusColor = (status: string) => {
     switch (status) {
       case "completed":
@@ -37,6 +43,17 @@ export function ProjectsPage() {
     }
   };
 
+  const handleDeleteProject = (id: string) => {
+    if (confirm("Вы уверены, что хотите удалить этот проект?")) {
+      dispatch(deleteProject(id));
+    }
+  };
+
+  const filteredProjects = projects.filter((project) =>
+    project.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    project.description?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <div className="flex-1 overflow-auto">
       <div className="max-w-7xl mx-auto p-8">
@@ -49,7 +66,7 @@ export function ProjectsPage() {
             </p>
           </div>
           <Button
-            onClick={openCreateDialog}
+            onClick={() => dispatch(openCreateProjectDialog())}
             className="bg-primary hover:bg-primary/90 text-primary-foreground"
           >
             <Plus className="h-4 w-4 mr-2" />
@@ -61,12 +78,22 @@ export function ProjectsPage() {
         <div className="mb-8">
           <Input
             placeholder="Поиск проектов..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
             className="max-w-md bg-input-background border-border"
           />
         </div>
 
         {/* Projects Grid */}
-        {projects.length === 0 ? (
+        {filteredProjects.length === 0 && searchQuery ? (
+          <Card className="p-12 text-center border border-dashed">
+            <Folder className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-lg mb-2 text-foreground">Ничего не найдено</h3>
+            <p className="text-sm text-muted-foreground mb-6">
+              Попробуйте изменить параметры поиска
+            </p>
+          </Card>
+        ) : projects.length === 0 ? (
           <Card className="p-12 text-center border border-dashed">
             <Folder className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
             <h3 className="text-lg mb-2 text-foreground">Нет проектов</h3>
@@ -74,7 +101,7 @@ export function ProjectsPage() {
               Создайте свой первый проект, чтобы начать работу
             </p>
             <Button
-              onClick={openCreateDialog}
+              onClick={() => dispatch(openCreateProjectDialog())}
               className="bg-primary hover:bg-primary/90 text-primary-foreground"
             >
               <Plus className="h-4 w-4 mr-2" />
@@ -83,7 +110,7 @@ export function ProjectsPage() {
           </Card>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {projects.map((project) => (
+            {filteredProjects.map((project) => (
               <Card
                 key={project.id}
                 className="p-6 border border-border hover:shadow-lg transition-all cursor-pointer group"
@@ -109,7 +136,7 @@ export function ProjectsPage() {
                       <DropdownMenuItem
                         onClick={(e) => {
                           e.stopPropagation();
-                          deleteProject(project.id);
+                          handleDeleteProject(project.id);
                         }}
                         className="text-destructive"
                       >

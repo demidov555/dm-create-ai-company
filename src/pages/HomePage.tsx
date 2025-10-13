@@ -1,10 +1,16 @@
-import { ArrowRight, Sparkles, Zap, Users, Rocket } from "lucide-react";
+import { ArrowRight, Sparkles, Zap, Users, Rocket, FolderOpen, TrendingUp } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
+import { useAppSelector } from "../store/hooks";
+import { selectProjectsCount, selectActiveProjectsCount } from "../store/selectors/projectSelectors";
+import { selectWorkingAgentsCount } from "../store/selectors/agentSelectors";
 
 export function HomePage() {
   const navigate = useNavigate();
+  const projectsCount = useAppSelector(selectProjectsCount);
+  const activeProjectsCount = useAppSelector(selectActiveProjectsCount);
+  const workingAgentsCount = useAppSelector(selectWorkingAgentsCount);
   const features = [
     {
       icon: Users,
@@ -80,6 +86,40 @@ export function HomePage() {
           </div>
         </div>
 
+        {/* Stats Section */}
+        {projectsCount > 0 && (
+          <div className="px-8 py-20 bg-secondary/30">
+            <div className="max-w-6xl mx-auto">
+              <h2 className="text-3xl text-center mb-12 text-foreground">
+                Ваша активность
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <Card className="p-8 border border-border text-center">
+                  <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mx-auto mb-4">
+                    <FolderOpen className="h-6 w-6 text-primary" />
+                  </div>
+                  <p className="text-3xl mb-2 text-foreground">{projectsCount}</p>
+                  <p className="text-sm text-muted-foreground">Всего проектов</p>
+                </Card>
+                <Card className="p-8 border border-border text-center">
+                  <div className="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center mx-auto mb-4">
+                    <TrendingUp className="h-6 w-6 text-blue-600" />
+                  </div>
+                  <p className="text-3xl mb-2 text-foreground">{activeProjectsCount}</p>
+                  <p className="text-sm text-muted-foreground">Активных проектов</p>
+                </Card>
+                <Card className="p-8 border border-border text-center">
+                  <div className="w-12 h-12 bg-green-500/10 rounded-xl flex items-center justify-center mx-auto mb-4">
+                    <Users className="h-6 w-6 text-green-600" />
+                  </div>
+                  <p className="text-3xl mb-2 text-foreground">{workingAgentsCount}</p>
+                  <p className="text-sm text-muted-foreground">Агентов работают</p>
+                </Card>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* CTA Section */}
         <div className="px-8 py-20">
           <div className="max-w-4xl mx-auto text-center">
@@ -87,7 +127,9 @@ export function HomePage() {
               Готовы начать?
             </h2>
             <p className="text-lg text-muted-foreground mb-8">
-              Создайте свой первый проект прямо сейчас
+              {projectsCount > 0 
+                ? "Создайте новый проект или продолжите работу над существующими"
+                : "Создайте свой первый проект прямо сейчас"}
             </p>
             <Button
               size="lg"

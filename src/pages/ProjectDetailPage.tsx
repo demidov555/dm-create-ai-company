@@ -10,30 +10,22 @@ import { ArrowLeft, Code2, FileText, TrendingUp, LayoutDashboard, Users, CheckSq
 import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
-import { useProjects } from "../App";
-
-interface Agent {
-  id: string;
-  name: string;
-  role: string;
-  status: "idle" | "working" | "completed";
-  currentTask?: string;
-}
-
-interface Message {
-  id: string;
-  sender: string;
-  role: "user" | "agent";
-  content: string;
-  timestamp: string;
-}
+import { useAppSelector } from "../store/hooks";
+import { selectProjectById } from "../store/selectors/projectSelectors";
+import { selectAgents } from "../store/selectors/agentSelectors";
+import { selectMessagesByProject } from "../store/selectors/agentSelectors";
 
 export function ProjectDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { projects } = useProjects();
   
-  const project = projects.find((p) => p.id === id);
+  const project = useAppSelector((state) => 
+    id ? selectProjectById(id)(state) : null
+  );
+  const agents = useAppSelector(selectAgents);
+  const messages = useAppSelector((state) => 
+    id ? selectMessagesByProject(id)(state) : []
+  );
   
   if (!project) {
     return (
@@ -57,96 +49,6 @@ export function ProjectDetailPage() {
     { id: "marketing", icon: TrendingUp, label: "Маркетинг" },
     { id: "settings", icon: Settings, label: "Настройки" },
   ];
-  
-  const [agents] = useState<Agent[]>([
-    {
-      id: "1",
-      name: "AI Продукт-менеджер",
-      role: "Координация команды и распределение задач",
-      status: "working",
-      currentTask: "Анализ требований и создание технического задания",
-    },
-    {
-      id: "2",
-      name: "AI Дизайнер",
-      role: "UI/UX дизайн и прототипирование",
-      status: "working",
-      currentTask: "Разработка дизайн-системы и компонентов",
-    },
-    {
-      id: "3",
-      name: "AI Frontend разработчик",
-      role: "Разработка интерфейса",
-      status: "idle",
-    },
-    {
-      id: "4",
-      name: "AI Backend разработчик",
-      role: "Серверная логика и API",
-      status: "idle",
-    },
-    {
-      id: "5",
-      name: "AI QA инженер",
-      role: "Тестирование и контроль качества",
-      status: "idle",
-    },
-  ]);
-
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: "1",
-      sender: "Вы",
-      role: "user",
-      content: "Создайте e-commerce платформу с корзиной и оплатой",
-      timestamp: "10:30",
-    },
-    {
-      id: "2",
-      sender: "AI Продукт-менеджер",
-      role: "agent",
-      content:
-        "Понял задачу. Разбиваю на подзадачи: дизайн, frontend, backend, интеграция платежей. Начинаем работу.",
-      timestamp: "10:31",
-    },
-    {
-      id: "3",
-      sender: "AI Дизайнер",
-      role: "agent",
-      content:
-        "Создаю макеты главной страницы, каталога товаров и корзины. Использую современный минималистичный стиль.",
-      timestamp: "10:35",
-    },
-  ]);
-
-  const handleSubmitTask = (task: string) => {
-    const newMessage: Message = {
-      id: String(Date.now()),
-      sender: "Вы",
-      role: "user",
-      content: task,
-      timestamp: new Date().toLocaleTimeString("ru-RU", {
-        hour: "2-digit",
-        minute: "2-digit",
-      }),
-    };
-    setMessages([...messages, newMessage]);
-
-    setTimeout(() => {
-      const pmResponse: Message = {
-        id: String(Date.now() + 1),
-        sender: "AI Продукт-менеджер",
-        role: "agent",
-        content:
-          "Принял задачу. Анализирую требования и распределяю работу между командой.",
-        timestamp: new Date().toLocaleTimeString("ru-RU", {
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
-      };
-      setMessages((prev) => [...prev, pmResponse]);
-    }, 1500);
-  };
 
   const handleDeploy = () => {
     alert("🚀 Деплой запущен! Ваш сайт будет доступен через несколько минут.");
@@ -188,10 +90,6 @@ export function ProjectDetailPage() {
             {activeTab === "overview" && (
               <div className="space-y-8">
                 <StatusPanel
-                  status="in-progress"
-                  progress={45}
-                  lastUpdate="5 минут назад"
-                  onDeploy={handleDeploy}
                   onEdit={() => alert("Режим редактирования")}
                 />
 
@@ -255,7 +153,7 @@ export function ProjectDetailPage() {
               <div className="space-y-8">
                 <div>
                   <h2 className="text-lg text-foreground mb-4">Новая задача</h2>
-                  <TaskForm onSubmit={handleSubmitTask} />
+                  <TaskForm />
                 </div>
 
                 <div>

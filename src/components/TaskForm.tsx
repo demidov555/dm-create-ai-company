@@ -1,20 +1,38 @@
 import { useState } from "react";
+import { useParams } from "react-router-dom";
 import { Send } from "lucide-react";
 import { Button } from "./ui/button";
 import { Textarea } from "./ui/textarea";
 import { Card } from "./ui/card";
+import { useAppDispatch } from "../store/hooks";
+import { addMessage } from "../store/slices/agentsSlice";
 
-interface TaskFormProps {
-  onSubmit: (task: string) => void;
-}
-
-export function TaskForm({ onSubmit }: TaskFormProps) {
+export function TaskForm() {
+  const { id: projectId } = useParams<{ id: string }>();
+  const dispatch = useAppDispatch();
   const [task, setTask] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (task.trim()) {
-      onSubmit(task);
+    if (task.trim() && projectId) {
+      // Add user message
+      dispatch(addMessage({
+        sender: "Вы",
+        role: "user",
+        content: task,
+        projectId,
+      }));
+      
+      // Simulate AI response
+      setTimeout(() => {
+        dispatch(addMessage({
+          sender: "AI Продукт-менеджер",
+          role: "agent",
+          content: "Принял задачу. Анализирую требования и распределяю работу между командой.",
+          projectId,
+        }));
+      }, 1500);
+      
       setTask("");
     }
   };

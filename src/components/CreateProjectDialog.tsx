@@ -13,18 +13,9 @@ import { Textarea } from "./ui/textarea";
 import { Button } from "./ui/button";
 import { Bot } from "lucide-react";
 import { Checkbox } from "./ui/checkbox";
-
-interface CreateProjectDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onCreateProject: (data: ProjectData) => string;
-}
-
-export interface ProjectData {
-  name: string;
-  description: string;
-  agents: string[];
-}
+import { useAppDispatch, useAppSelector } from "../store/hooks";
+import { addProject } from "../store/slices/projectsSlice";
+import { closeCreateProjectDialog } from "../store/slices/uiSlice";
 
 const availableAgents = [
   { id: "product-manager", name: "Продукт-менеджер", required: true },
@@ -35,12 +26,11 @@ const availableAgents = [
   { id: "marketer", name: "Маркетолог" },
 ];
 
-export function CreateProjectDialog({
-  open,
-  onOpenChange,
-  onCreateProject,
-}: CreateProjectDialogProps) {
+export function CreateProjectDialog() {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const open = useAppSelector((state) => state.ui.createProjectDialogOpen);
+  
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [selectedAgents, setSelectedAgents] = useState<string[]>([
@@ -50,19 +40,33 @@ export function CreateProjectDialog({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (name.trim()) {
-      const newProjectId = onCreateProject({
+      const result = dispatch(addProject({
         name,
         description,
-        agents: selectedAgents,
-      });
+        agentCount: selectedAgents.length,
+      }));
+      
+      // Get the new project ID from the state
+      const newProjectId = result.payload ? String(Date.now()) : null;
+      
       // Reset form
       setName("");
       setDescription("");
       setSelectedAgents(["product-manager"]);
-      onOpenChange(false);
+      dispatch(closeCreateProjectDialog());
+      
       // Navigate to the new project
-      navigate(`/projects/${newProjectId}`);
+      if (newProjectId) {
+        // Small delay to ensure state is updated
+        setTimeout(() => {
+          navigate(`/projects/${newProjectId}`);
+        }, 100);
+      }
     }
+  };
+
+  const handleClose = () => {
+    dispatch(closeCreateProjectDialog());
   };
 
   const toggleAgent = (agentId: string) => {
@@ -75,7 +79,7 @@ export function CreateProjectDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>Создать новый проект</DialogTitle>
@@ -137,7 +141,7 @@ export function CreateProjectDialog({
             <Button
               type="button"
               variant="outline"
-              onClick={() => onOpenChange(false)}
+              onClick={handleClose}
             >
               Отмена
             </Button>
