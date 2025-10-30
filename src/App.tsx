@@ -7,6 +7,7 @@ import { ProjectsPage } from "./pages/ProjectsPage";
 import { ProjectDetailPage } from "./pages/ProjectDetailPage";
 import { SettingsPage } from "./pages/SettingsPage";
 import { CreateProjectDialog } from "./components/CreateProjectDialog";
+import { Toaster } from "./components/ui/sonner";
 
 function AppLayout() {
   return (
@@ -30,6 +31,7 @@ export default function App() {
         <AppLayout />
         <CreateProjectDialog />
       </BrowserRouter>
+      <Toaster theme="system" richColors expand />
     </Provider>
   );
 }

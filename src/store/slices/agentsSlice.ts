@@ -9,18 +9,8 @@ export interface Agent {
   projectId?: string;
 }
 
-export interface Message {
-  id: string;
-  sender: string;
-  role: "user" | "agent";
-  content: string;
-  timestamp: string;
-  projectId: string;
-}
-
 interface AgentsState {
   agents: Agent[];
-  messages: Message[];
 }
 
 const initialState: AgentsState = {
@@ -58,34 +48,6 @@ const initialState: AgentsState = {
       status: "idle",
     },
   ],
-  messages: [
-    {
-      id: "1",
-      sender: "Вы",
-      role: "user",
-      content: "Создайте e-commerce платформу с корзиной и оплатой",
-      timestamp: "10:30",
-      projectId: "1",
-    },
-    {
-      id: "2",
-      sender: "AI Продукт-менеджер",
-      role: "agent",
-      content:
-        "Понял задачу. Разбиваю на подзадачи: дизайн, frontend, backend, интеграция платежей. Начинаем работу.",
-      timestamp: "10:31",
-      projectId: "1",
-    },
-    {
-      id: "3",
-      sender: "AI Дизайнер",
-      role: "agent",
-      content:
-        "Создаю макеты главной страницы, каталога товаров и корзины. Использую современный минималистичный стиль.",
-      timestamp: "10:35",
-      projectId: "1",
-    },
-  ],
 };
 
 const agentsSlice = createSlice({
@@ -107,30 +69,6 @@ const agentsSlice = createSlice({
           agent.currentTask = action.payload.currentTask;
         }
       }
-    },
-    addMessage: (
-      state,
-      action: PayloadAction<{
-        sender: string;
-        role: "user" | "agent";
-        content: string;
-        projectId: string;
-      }>
-    ) => {
-      const newMessage: Message = {
-        id: String(Date.now()),
-        ...action.payload,
-        timestamp: new Date().toLocaleTimeString("ru-RU", {
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
-      };
-      state.messages.push(newMessage);
-    },
-    clearMessagesForProject: (state, action: PayloadAction<string>) => {
-      state.messages = state.messages.filter(
-        (m) => m.projectId !== action.payload
-      );
     },
     assignAgentToProject: (
       state,
@@ -154,8 +92,6 @@ const agentsSlice = createSlice({
 
 export const {
   updateAgentStatus,
-  addMessage,
-  clearMessagesForProject,
   assignAgentToProject,
   resetAgent,
 } = agentsSlice.actions;

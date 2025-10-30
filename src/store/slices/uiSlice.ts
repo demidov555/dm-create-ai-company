@@ -6,7 +6,7 @@ interface UIState {
   theme: "light" | "dark";
   notifications: Array<{
     id: string;
-    type: "success" | "error" | "info";
+    type: "success" | "error" | "info" | "warning";
     message: string;
   }>;
 }
@@ -40,14 +40,14 @@ const uiSlice = createSlice({
     addNotification: (
       state,
       action: PayloadAction<{
-        type: "success" | "error" | "info";
+        type: "success" | "error" | "info" | "warning";
         message: string;
       }>
     ) => {
-      state.notifications.push({
-        id: String(Date.now()),
-        ...action.payload,
-      });
+      const id = String(Date.now()) + Math.random().toString(36).slice(2, 7);
+      const payload = { id, ...action.payload };
+
+      state.notifications.push(payload);
     },
     removeNotification: (state, action: PayloadAction<string>) => {
       state.notifications = state.notifications.filter(

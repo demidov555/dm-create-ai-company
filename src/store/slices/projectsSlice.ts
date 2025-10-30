@@ -1,112 +1,101 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
+import api from "../../services/api";
+import { VITE_API_URL } from "../../../configs";
 
-export interface Project {
-  id: string;
-  name: string;
-  description?: string;
-  status: "active" | "completed" | "in-progress";
+export interface ProjectSummary {
+  projectId: number;
   agentCount: number;
+  description: string;
   lastUpdated: string;
+  name: string;
+  status: "idle" | "loading" | "succeeded" | "failed";
 }
 
 interface ProjectsState {
-  projects: Project[];
-  currentProjectId: string | null;
+  list: ProjectSummary[];
+  createdProjectId: number | null;
+  status: "idle" | "loading" | "succeeded" | "failed";
+  error: string | null;
 }
 
 const initialState: ProjectsState = {
-  projects: [
-    {
-      id: "1",
-      name: "E-commerce Platform",
-      description: "Интернет-магазин с корзиной, оплатой и админ-панелью",
-      status: "in-progress",
-      agentCount: 5,
-      lastUpdated: "2 часа назад",
-    },
-    {
-      id: "2",
-      name: "Portfolio Website",
-      description: "Портфолио для дизайнера с галереей работ",
-      status: "completed",
-      agentCount: 3,
-      lastUpdated: "1 день назад",
-    },
-    {
-      id: "3",
-      name: "SaaS Dashboard",
-      description: "Аналитическая панель для B2B сервиса",
-      status: "active",
-      agentCount: 6,
-      lastUpdated: "30 минут назад",
-    },
-  ],
-  currentProjectId: null,
+  list: [],
+  createdProjectId: null,
+  status: "idle",
+  error: null,
 };
+
+export const fetchProjects = createAsyncThunk<
+  ProjectSummary[],
+  void,
+  { rejectValue: string }
+>("projects/fetchAll", async (_, { rejectWithValue }) => {
+  try {
+  const response = await api.get(`/projects`);
+  return response.data;
+  } catch (err: any) {
+    return rejectWithValue(err.message || "Failed to fetch projects");
+  }
+});
+
+export const deleteProject = createAsyncThunk<
+  void,
+  number,
+  { rejectValue: string }
+>("projects/delete", async (id, { rejectWithValue }) => {
+  try {
+  await api.delete(`/projects${id}`);
+  } catch (err: any) {
+    return rejectWithValue(err.message || "Failed to fetch projects");
+  }
+});
+
+export const addProject = createAsyncThunk<
+  number,
+  any,
+  { rejectValue: string }
+>("projects/create", async (body, { rejectWithValue }) => {
+  try {
+  const result = await api.post(`/project_create`, body);
+
+  return result.data.projectId;
+  } catch (err: any) {
+    return rejectWithValue(err.message || "Failed to create projects");
+  }
+});
 
 const projectsSlice = createSlice({
   name: "projects",
   initialState,
-  reducers: {
-    addProject: (
-      state,
-      action: PayloadAction<{
-        name: string;
-        description?: string;
-        agentCount: number;
-      }>
-    ) => {
-      const newProject: Project = {
-        id: String(Date.now()),
-        name: action.payload.name,
-        description: action.payload.description,
-        status: "active",
-        agentCount: action.payload.agentCount,
-        lastUpdated: "только что",
-      };
-      state.projects.unshift(newProject);
-      state.currentProjectId = newProject.id;
-    },
-    deleteProject: (state, action: PayloadAction<string>) => {
-      state.projects = state.projects.filter((p) => p.id !== action.payload);
-      if (state.currentProjectId === action.payload) {
-        state.currentProjectId = null;
-      }
-    },
-    updateProject: (
-      state,
-      action: PayloadAction<{ id: string; updates: Partial<Project> }>
-    ) => {
-      const project = state.projects.find((p) => p.id === action.payload.id);
-      if (project) {
-        Object.assign(project, action.payload.updates);
-      }
-    },
-    setCurrentProject: (state, action: PayloadAction<string | null>) => {
-      state.currentProjectId = action.payload;
-    },
-    updateProjectStatus: (
-      state,
-      action: PayloadAction<{
-        id: string;
-        status: "active" | "completed" | "in-progress";
-      }>
-    ) => {
-      const project = state.projects.find((p) => p.id === action.payload.id);
-      if (project) {
-        project.status = action.payload.status;
-        project.lastUpdated = "только что";
-      }
-    },
+  reducers: {},
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchProjects.pending, (state) => {
+        state.status = "loading";
+        state.error = null;
+      })
+      .addCase(fetchProjects.fulfilled, (state, action: PayloadAction<ProjectSummary[]>) => {
+        state.status = "succeeded";
+        state.list = action.payload;
+      })
+      .addCase(fetchProjects.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload || "Unknown error";
+      })
+
+      .addCase(addProject.pending, (state) => {
+        state.status = "loading";
+        state.error = null;
+      })
+      .addCase(addProject.fulfilled, (state, action: PayloadAction<number>) => {
+        state.status = "succeeded";
+        state.createdProjectId = action.payload;
+      })
+      .addCase(addProject.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload || "Unknown error";
+      })
   },
 });
-
-export const {
-  addProject,
-  deleteProject,
-  updateProject,
-  setCurrentProject,
-  updateProjectStatus,
-} = projectsSlice.actions;
 
 export default projectsSlice.reducer;

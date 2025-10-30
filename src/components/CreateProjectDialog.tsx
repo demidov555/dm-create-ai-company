@@ -30,39 +30,37 @@ export function CreateProjectDialog() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const open = useAppSelector((state) => state.ui.createProjectDialogOpen);
-  
+
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [selectedAgents, setSelectedAgents] = useState<string[]>([
     "product-manager",
   ]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (name.trim()) {
-      const result = dispatch(addProject({
+
+    const action = await dispatch(
+      addProject({
         name,
         description,
-        agentCount: selectedAgents.length,
-      }));
-      
-      // Get the new project ID from the state
-      const newProjectId = result.payload ? String(Date.now()) : null;
-      
-      // Reset form
+        agent_count: selectedAgents.length,
+      })
+    );
+
+    if (addProject.fulfilled.match(action)) {
+      const createdProjectId = action.payload;
+
       setName("");
       setDescription("");
       setSelectedAgents(["product-manager"]);
       dispatch(closeCreateProjectDialog());
-      
-      // Navigate to the new project
-      if (newProjectId) {
-        // Small delay to ensure state is updated
-        setTimeout(() => {
-          navigate(`/projects/${newProjectId}`);
-        }, 100);
-      }
+
+      navigate(`/projects/${createdProjectId}`);
+    } else {
+      console.error("Ошибка при создании проекта:", action.payload);
     }
+
   };
 
   const handleClose = () => {

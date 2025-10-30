@@ -2,7 +2,9 @@
   "name": "dm-create-ai-company-front",
   "image": "mcr.microsoft.com/devcontainers/javascript-node:20",
   "postCreateCommand": "npm install -g create-react-app && npm install",
-  "forwardPorts": [4200],
+  "forwardPorts": [
+    4200
+  ],
   "portsAttributes": {
     "4200": {
       "label": "Web app",
@@ -17,7 +19,8 @@
         "formulahendry.auto-rename-tag",
         "steoates.autoimport",
         "christian-kohler.path-intellisense",
-        "mohsen1.react-proptypes-intellisense"
+        "mohsen1.react-proptypes-intellisense",
+        "fisheva.eva-theme"
       ]
     }
   }

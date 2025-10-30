@@ -12,7 +12,6 @@ export function SettingsPage() {
 
   const handleThemeToggle = () => {
     dispatch(setTheme(theme === "light" ? "dark" : "light"));
-    // Apply theme to document
     if (theme === "light") {
       document.documentElement.classList.add("dark");
     } else {
@@ -44,28 +43,6 @@ export function SettingsPage() {
                 checked={theme === "dark"}
                 onCheckedChange={handleThemeToggle}
               />
-            </div>
-          </Card>
-
-          {/* Notifications Settings */}
-          <Card className="p-6 border border-border">
-            <h2 className="text-xl mb-4 text-foreground">Уведомления</h2>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="space-y-1">
-                  <Label>Активные уведомления</Label>
-                  <p className="text-sm text-muted-foreground">
-                    Количество: {notifications.length}
-                  </p>
-                </div>
-                <Button
-                  variant="outline"
-                  onClick={() => dispatch(clearNotifications())}
-                  disabled={notifications.length === 0}
-                >
-                  Очистить все
-                </Button>
-              </div>
             </div>
           </Card>
 

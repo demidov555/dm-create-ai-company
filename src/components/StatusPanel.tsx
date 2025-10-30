@@ -5,8 +5,6 @@ import { Card } from "./ui/card";
 import { Progress } from "./ui/progress";
 import { Badge } from "./ui/badge";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
-import { selectProjectById } from "../store/selectors/projectSelectors";
-import { updateProjectStatus } from "../store/slices/projectsSlice";
 import { addNotification } from "../store/slices/uiSlice";
 
 interface StatusPanelProps {
@@ -17,9 +15,7 @@ export function StatusPanel({ onEdit }: StatusPanelProps) {
   const { id: projectId } = useParams<{ id: string }>();
   const dispatch = useAppDispatch();
   
-  const project = useAppSelector((state) => 
-    projectId ? selectProjectById(projectId)(state) : null
-  );
+  const project = useAppSelector((state) =>  null);
 
   if (!project) return null;
 
@@ -50,15 +46,15 @@ export function StatusPanel({ onEdit }: StatusPanelProps) {
     }
   };
 
-  const handleDeploy = () => {
-    if (projectId) {
-      dispatch(updateProjectStatus({ id: projectId, status: "completed" }));
-      dispatch(addNotification({
-        type: "success",
-        message: "🚀 Деплой запущен! Ваш сайт будет доступен через несколько минут.",
-      }));
-    }
-  };
+  // const handleDeploy = () => {
+  //   if (projectId) {
+  //     dispatch(updateProjectStatus({ id: projectId, status: "completed" }));
+  //     dispatch(addNotification({
+  //       type: "success",
+  //       message: "🚀 Деплой запущен! Ваш сайт будет доступен через несколько минут.",
+  //     }));
+  //   }
+  // };
 
   return (
     <Card className="p-6 border border-border">
@@ -97,7 +93,6 @@ export function StatusPanel({ onEdit }: StatusPanelProps) {
         </Button>
         <div className="flex gap-2">
           <Button
-            onClick={handleDeploy}
             className="bg-primary hover:bg-primary/90 text-primary-foreground"
             disabled={status === "completed"}
           >

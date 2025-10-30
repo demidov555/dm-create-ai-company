@@ -3,13 +3,12 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
 import { useAppSelector } from "../store/hooks";
-import { selectProjectsCount, selectActiveProjectsCount } from "../store/selectors/projectSelectors";
+import { selectProjectsCount } from "../store/selectors/projectsSelectors";
 import { selectWorkingAgentsCount } from "../store/selectors/agentSelectors";
 
 export function HomePage() {
   const navigate = useNavigate();
   const projectsCount = useAppSelector(selectProjectsCount);
-  const activeProjectsCount = useAppSelector(selectActiveProjectsCount);
   const workingAgentsCount = useAppSelector(selectWorkingAgentsCount);
   const features = [
     {
@@ -105,7 +104,7 @@ export function HomePage() {
                   <div className="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center mx-auto mb-4">
                     <TrendingUp className="h-6 w-6 text-blue-600" />
                   </div>
-                  <p className="text-3xl mb-2 text-foreground">{activeProjectsCount}</p>
+                  {/* <p className="text-3xl mb-2 text-foreground">{activeProjectsCount}</p> */}
                   <p className="text-sm text-muted-foreground">Активных проектов</p>
                 </Card>
                 <Card className="p-8 border border-border text-center">

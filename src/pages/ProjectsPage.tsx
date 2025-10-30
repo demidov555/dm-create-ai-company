@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Plus, Folder, MoreVertical, Trash2, Edit } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../components/ui/button";
@@ -12,15 +12,22 @@ import {
 } from "../components/ui/dropdown-menu";
 import { Input } from "../components/ui/input";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
-import { selectProjects } from "../store/selectors/projectSelectors";
-import { deleteProject } from "../store/slices/projectsSlice";
+import { selectProjects, selectProjectsError, selectProjectsStatus } from "../store/selectors/projectsSelectors";
+import { deleteProject, fetchProjects } from "../store/slices/projectsSlice";
 import { openCreateProjectDialog } from "../store/slices/uiSlice";
 
 export function ProjectsPage() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const projects = useAppSelector(selectProjects);
-  const [searchQuery, setSearchQuery] = useState("");
+  const status = useAppSelector(selectProjectsStatus);
+  const error = useAppSelector(selectProjectsError);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  useEffect(() => {
+    dispatch(fetchProjects());
+  }, [dispatch]);
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case "completed":
@@ -43,15 +50,15 @@ export function ProjectsPage() {
     }
   };
 
-  const handleDeleteProject = (id: string) => {
+  const handleDeleteProject = (id: number) => {
     if (confirm("Вы уверены, что хотите удалить этот проект?")) {
       dispatch(deleteProject(id));
     }
   };
-
+ 
   const filteredProjects = projects.filter((project) =>
-    project.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    project.description?.toLowerCase().includes(searchQuery.toLowerCase())
+    project.name?.toLowerCase().includes(searchQuery?.toLowerCase()) ||
+    project.description?.toLowerCase().includes(searchQuery?.toLowerCase())
   );
 
   return (
@@ -112,9 +119,9 @@ export function ProjectsPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredProjects.map((project) => (
               <Card
-                key={project.id}
+                key={project.projectId}
                 className="p-6 border border-border hover:shadow-lg transition-all cursor-pointer group"
-                onClick={() => navigate(`/projects/${project.id}`)}
+                onClick={() => navigate(`/projects/${project.projectId}`)}
               >
                 <div className="flex items-start justify-between mb-4">
                   <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
@@ -136,7 +143,7 @@ export function ProjectsPage() {
                       <DropdownMenuItem
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleDeleteProject(project.id);
+                          handleDeleteProject(project.projectId);
                         }}
                         className="text-destructive"
                       >
