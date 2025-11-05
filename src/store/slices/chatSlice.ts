@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { AppDispatch } from "../store";
-import { socketService } from "../../services/socket";
 import { api } from "../../../src/services/api";
+import { CHAT_SSE_URL } from "../../../configs";
 
 const msgs = [
   {
@@ -41,20 +41,20 @@ export interface Message {
   userId: number;
   role: "user" | "agent";
   message: string;
+  isLoading: boolean;
 }
-
 
 type ChatState = {
   connected: boolean;
   messages: Message[];
+  isLoading: boolean;
 };
-
 
 const initialState: ChatState = {
   connected: false,
   messages: [],
+  isLoading: false,
 };
-
 
 const chatSlice = createSlice({
   name: "chat",
@@ -72,15 +72,34 @@ const chatSlice = createSlice({
     clearMessages(state) {
       state.messages = [];
     },
+    setLoading(state, action: PayloadAction<boolean>) {
+      state.isLoading = action.payload;
+    },
   },
 });
 
-export const { setConnected, addMessage, addMessages, clearMessages } = chatSlice.actions;
+export const { setConnected, addMessage, addMessages, clearMessages, setLoading } = chatSlice.actions;
 export default chatSlice.reducer;
 
-export const sendMessage = (payload: Message) => (dispatch: AppDispatch) => {
-  socketService.emit("chat:message", payload);
+export const sendMessage = (payload: Message) => async (dispatch: AppDispatch) => {
   dispatch(addMessage(payload));
+  dispatch(setLoading(true));
+
+  try {
+    const response = await api.post(CHAT_SSE_URL, {
+      project_id: payload.projectId,
+      user_id: payload.userId,
+      role: payload.role,
+      message: payload.message,
+    });
+
+    if (!response.data) {
+      throw new Error(`Ошибка ответа сервера: ${response.status}`);
+    }
+  } catch (error) {
+    console.error("[SSE] Ошибка при отправке сообщения:", error);
+    dispatch(setLoading(false));
+  }
 };
 
 export const fetchHistoryMessages = (projectId: string) => async (dispatch: AppDispatch) => {

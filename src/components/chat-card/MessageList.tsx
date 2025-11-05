@@ -1,23 +1,19 @@
 import { useEffect, useRef } from "react";
 import { Message } from "../../store/slices/chatSlice";
 import { ScrollArea } from "../ui/scroll-area";
+import { Loader2 } from "lucide-react";
 
 export interface MessageListProps {
   messages: Message[];
+  isLoading: boolean;
 }
 
-export function MessageList({ messages }: MessageListProps) {
+export function MessageList({ messages, isLoading }: MessageListProps) {
   const lastMsgRef = useRef<HTMLDivElement | null>(null);
   const prevLenRef = useRef<number>(messages.length);
 
   useEffect(() => {
-    const last = messages[messages.length - 1];
-
-    if (last?.role === "user") {
-      requestAnimationFrame(() => {
-        lastMsgRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
-      });
-    }
+    requestAnimationFrame(() => lastMsgRef.current?.scrollIntoView({ behavior: "smooth", block: "end" }));
 
     prevLenRef.current = messages.length;
   }, [messages]);
@@ -35,7 +31,7 @@ export function MessageList({ messages }: MessageListProps) {
             >
               <div className={`flex-1 ${message.role === "user" ? "text-right" : ""}`}>
                 <p
-                  className={`text-sm text-foreground/90 rounded-lg p-3 inline-block max-w-[80%] ${message.role === "user" ? "bg-secondary/50" : ""
+                  className={`text-sm text-foreground/90 rounded-lg p-3 inline-block max-w-[80%] whitespace-break-spaces ${message.role === "user" ? "bg-secondary/50" : ""
                     }`}
                 >
                   {message.message}
@@ -44,6 +40,8 @@ export function MessageList({ messages }: MessageListProps) {
             </div>
           );
         })}
+
+        {isLoading && (<Loader2 className="h-4 w-4 animate-spin text-blue-600" />)}
       </div>
     </ScrollArea>
   );

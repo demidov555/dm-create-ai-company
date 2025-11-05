@@ -4,6 +4,8 @@ import uiReducer from "./slices/uiSlice";
 import agentsReducer from "./slices/agentsSlice";
 import projectDetailsSlice from "./slices/projectDetailsSlice";
 import chatReducer from "./slices/chatSlice";
+import authReducer from "./slices/authSlice";
+import { authMiddleware } from "./middleware/authMiddleware";
 
 export const store = configureStore({
   reducer: {
@@ -12,11 +14,9 @@ export const store = configureStore({
     ui: uiReducer,
     agents: agentsReducer,
     chat: chatReducer,
+    auth: authReducer,
   },
-  middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware({
-      serializableCheck: false,
-    }),
+  middleware: (getDefaultMiddleware) => getDefaultMiddleware({ serializableCheck: false }).concat(authMiddleware)
 });
 
 export type RootState = ReturnType<typeof store.getState>;
