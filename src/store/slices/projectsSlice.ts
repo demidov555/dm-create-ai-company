@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import api from "../../services/api";
-import { VITE_API_URL } from "../../../configs";
+import { VITE_API_URL } from "../../../configs/env";
 
 export interface ProjectSummary {
   projectId: number;

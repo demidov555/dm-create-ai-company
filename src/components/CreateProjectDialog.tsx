@@ -13,9 +13,10 @@ import { Textarea } from "./ui/textarea";
 import { Button } from "./ui/button";
 import { Bot } from "lucide-react";
 import { Checkbox } from "./ui/checkbox";
-import { useAppDispatch, useAppSelector } from "../store/hooks";
+import { useAppDispatch } from "../store/hooks";
 import { addProject } from "../store/slices/projectsSlice";
-import { closeCreateProjectDialog } from "../store/slices/uiSlice";
+import { closeDialog, selectDialogOpen } from "../store/slices/uiSlice";
+import { useSelector } from "react-redux";
 
 const availableAgents = [
   { id: "product-manager", name: "Продукт-менеджер", required: true },
@@ -25,11 +26,12 @@ const availableAgents = [
   { id: "qa", name: "QA инженер" },
   { id: "marketer", name: "Маркетолог" },
 ];
+const dialogName = "createProjectsDialog";
 
 export function CreateProjectDialog() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const open = useAppSelector((state) => state.ui.createProjectDialogOpen);
+  const open = useSelector(selectDialogOpen(dialogName));
 
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -54,7 +56,7 @@ export function CreateProjectDialog() {
       setName("");
       setDescription("");
       setSelectedAgents(["product-manager"]);
-      dispatch(closeCreateProjectDialog());
+      dispatch(closeDialog(dialogName));
 
       navigate(`/projects/${createdProjectId}`);
     } else {
@@ -64,7 +66,7 @@ export function CreateProjectDialog() {
   };
 
   const handleClose = () => {
-    dispatch(closeCreateProjectDialog());
+    dispatch(closeDialog(dialogName));
   };
 
   const toggleAgent = (agentId: string) => {

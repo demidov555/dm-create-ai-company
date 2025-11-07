@@ -1,18 +1,24 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSelector, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { RootState } from "../store";
 
 interface UIState {
-  createProjectDialogOpen: boolean;
+  dialogs: Record<string, boolean>;
   sidebarCollapsed: boolean;
   theme: "light" | "dark";
-  notifications: Array<{
+  notifications: {
     id: string;
     type: "success" | "error" | "info" | "warning";
     message: string;
-  }>;
+  }[]
 }
 
 const initialState: UIState = {
-  createProjectDialogOpen: false,
+  dialogs: {
+    // Пример: можно инициализировать нужные
+    // createProject: false,
+    // editTask: false,
+    // settings: false,
+  },
   sidebarCollapsed: false,
   theme: "light",
   notifications: [],
@@ -22,32 +28,35 @@ const uiSlice = createSlice({
   name: "ui",
   initialState,
   reducers: {
-    openCreateProjectDialog: (state) => {
-      state.createProjectDialogOpen = true;
+    // === ДИАЛОГИ ===
+    openDialog: (state, action: PayloadAction<string>) => {
+      state.dialogs[action.payload] = true;
     },
-    closeCreateProjectDialog: (state) => {
-      state.createProjectDialogOpen = false;
+    closeDialog: (state, action: PayloadAction<string>) => {
+      state.dialogs[action.payload] = false;
     },
-    toggleCreateProjectDialog: (state) => {
-      state.createProjectDialogOpen = !state.createProjectDialogOpen;
+    toggleDialog: (state, action: PayloadAction<string>) => {
+      const id = action.payload;
+      state.dialogs[id] = !state.dialogs[id];
     },
+
+    // === САЙДБАР ===
     toggleSidebar: (state) => {
       state.sidebarCollapsed = !state.sidebarCollapsed;
     },
+
+    // === ТЕМА ===
     setTheme: (state, action: PayloadAction<"light" | "dark">) => {
       state.theme = action.payload;
     },
+
+    // === УВЕДОМЛЕНИЯ ===
     addNotification: (
       state,
-      action: PayloadAction<{
-        type: "success" | "error" | "info" | "warning";
-        message: string;
-      }>
+      action: PayloadAction<Omit<Notification, "id">>
     ) => {
       const id = String(Date.now()) + Math.random().toString(36).slice(2, 7);
-      const payload = { id, ...action.payload };
-
-      state.notifications.push(payload);
+      state.notifications.push({ id, ...action.payload });
     },
     removeNotification: (state, action: PayloadAction<string>) => {
       state.notifications = state.notifications.filter(
@@ -60,15 +69,32 @@ const uiSlice = createSlice({
   },
 });
 
+type Notification = {
+  id: string;
+  type: "success" | "error" | "info" | "warning";
+  message: string;
+};
+
 export const {
-  openCreateProjectDialog,
-  closeCreateProjectDialog,
-  toggleCreateProjectDialog,
+  openDialog,
+  closeDialog,
+  toggleDialog,
   toggleSidebar,
   setTheme,
   addNotification,
   removeNotification,
   clearNotifications,
 } = uiSlice.actions;
+
+// === СЕЛЕКТОРЫ ===
+export const selectDialogOpen = (dialogId: string) =>
+  createSelector(
+    (state: RootState) => state.ui.dialogs,
+    (dialogs) => dialogs[dialogId] ?? false
+  );
+
+export const selectSidebarCollapsed = (state: RootState) => state.ui.sidebarCollapsed;
+export const selectTheme = (state: RootState) => state.ui.theme;
+export const selectNotifications = (state: RootState) => state.ui.notifications;
 
 export default uiSlice.reducer;

@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import api from "../../services/api";
 
 export interface ProjectDetails {
@@ -97,19 +97,6 @@ export const fetchProjectDetails = createAsyncThunk<
   }
 });
 
-export const sendMessage = createAsyncThunk<
-  any,
-  number,
-  { rejectValue: string }
->("projectDetails/sendMessage", async (projectId, { rejectWithValue }) => {
-  try {
-    const response = await api.get(`/send_message/${projectId}`);
-    return response.data;
-  } catch (err: any) {
-    return rejectWithValue(err.message || "Failed to fetch");
-  }
-});
-
 const projectDetailsSlice = createSlice({
   name: "projectDetails",
   initialState,
@@ -134,18 +121,6 @@ const projectDetailsSlice = createSlice({
         state.status = "failed";
         state.error = action.payload || "Unknown error";
       })
-      .addCase(sendMessage.pending, (state) => {
-        state.status = "loading";
-        state.error = null;
-      })
-      .addCase(sendMessage.fulfilled, (state, action) => {
-        state.status = "succeeded";
-        state.project.messages = action.payload;
-      })
-      .addCase(sendMessage.rejected, (state, action) => {
-        state.status = "failed";
-        state.error = action.payload || "Unknown error";
-      });
   },
 });
 

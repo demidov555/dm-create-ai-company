@@ -1,5 +1,5 @@
 import axios, { AxiosError } from "axios";
-import { VITE_API_URL } from "../../configs";
+import { VITE_API_URL } from "../../configs/env";
 import { notificationService } from "./notification";
 
 function extractErrorMessage(error: any): string {
@@ -28,15 +28,17 @@ export const api = axios.create({
 	baseURL: VITE_API_URL,
 	// you can enable credentials if backend requires cookies
 	// withCredentials: true,
+	headers: {
+		"Content-Type": "application/json",
+	},
 });
 
-api.interceptors.response.use(
-	(response) => response,
-	(error: AxiosError) => {
-		notificationService.error(extractErrorMessage(error));
-
-		return Promise.reject(error);
+api.interceptors.request.use((config) => {
+	const token = localStorage.getItem("access_token");
+	if (token) {
+		config.headers.Authorization = `Bearer ${token}`;
 	}
-);
+	return config;
+});
 
 export default api;

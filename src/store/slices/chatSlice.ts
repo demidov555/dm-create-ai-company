@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { AppDispatch } from "../store";
 import { api } from "../../../src/services/api";
-import { CHAT_SSE_URL } from "../../../configs";
+import { CHAT_SSE_URL } from "../../../configs/env";
 
 const msgs = [
   {
@@ -37,7 +37,7 @@ const msgs = [
 ] as Message[]
 
 export interface Message {
-  projectId: string;
+  projectId: string | number;
   userId: number;
   role: "user" | "agent";
   message: string;
@@ -87,7 +87,7 @@ export const sendMessage = (payload: Message) => async (dispatch: AppDispatch) =
 
   try {
     const response = await api.post(CHAT_SSE_URL, {
-      project_id: payload.projectId,
+      project_id: Number(payload.projectId),
       user_id: payload.userId,
       role: payload.role,
       message: payload.message,
@@ -96,6 +96,10 @@ export const sendMessage = (payload: Message) => async (dispatch: AppDispatch) =
     if (!response.data) {
       throw new Error(`Ошибка ответа сервера: ${response.status}`);
     }
+
+    console.log(response.data);
+    dispatch(addMessage(response.data));
+    dispatch(setLoading(false));
   } catch (error) {
     console.error("[SSE] Ошибка при отправке сообщения:", error);
     dispatch(setLoading(false));
@@ -103,16 +107,16 @@ export const sendMessage = (payload: Message) => async (dispatch: AppDispatch) =
 };
 
 export const fetchHistoryMessages = (projectId: string) => async (dispatch: AppDispatch) => {
-  dispatch(addMessages(msgs));
-  // try {
-  //   const res = await api.get(`/projects/${projectId}/messages`);
-  //   const data = res.data;
-  //   if (Array.isArray(data)) {
-  //     dispatch(addMessages(data));
-  //   } else if (data && Array.isArray(data.messages)) {
-  //     dispatch(addMessages(data.messages));
-  //   }
-  // } catch (err) {
-  //   return err;
-  // }
+  try {
+    const res = await api.get(`/history_messages/${projectId}`);
+    const data = res.data;
+    if (Array.isArray(data)) {
+      dispatch(addMessages(data));
+    } else if (data && Array.isArray(data.messages)) {
+      dispatch(addMessages(data.messages));
+    }
+  } catch (err) {
+    // dispatch(addMessages(msgs));
+    return err;
+  }
 };

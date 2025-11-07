@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Sparkles } from "lucide-react";
 import { Card } from "../components/ui/card";
 import { PhoneInput } from "../components/auth/PhoneInput";
@@ -12,52 +12,45 @@ import {
   selectAuthError,
   selectIsAuthenticated,
 } from "../store/selectors/authSelectors";
-import {
-  sendVerificationCode,
-  sendVerificationCodeSuccess,
-  verifyCode,
-  verifyCodeSuccess,
-  verifyCodeFailure,
-  resetVerification,
-  clearError,
-} from "../store/slices/authSlice";
+import { sendCode, verifyPhoneCode } from "../store/slices/authThunks";
+import { clearError, resetVerification } from "../store/slices/authSlice";
 
 export function LoginPage() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+  const location = useLocation();
 
   const verificationStep = useAppSelector(selectVerificationStep);
   const phoneNumber = useAppSelector(selectPhoneNumber);
   const isLoading = useAppSelector(selectAuthLoading);
   const error = useAppSelector(selectAuthError);
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
+  const from = (location.state as any)?.from?.pathname || "/";
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate("/", { replace: true });
+      navigate(from, { replace: true });
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, navigate, from]);
 
-  const handleSendCode = (phone: string) => {
-    dispatch(sendVerificationCode(phone));
+  const handleSendCode = async (phone: string) => {
+    dispatch(clearError());
+    const result = await dispatch(sendCode(phone));
 
-    // Симуляция отправки SMS
-    setTimeout(() => {
-      dispatch(sendVerificationCodeSuccess());
-    }, 1000);
+    if (sendCode.rejected.match(result)) {
+      // Ошибка уже в state.error
+      return;
+    }
+    // Успех → verificationStep = "otp" (через thunk)
   };
 
-  const handleVerifyCode = (code: string) => {
-    dispatch(verifyCode(code));
+  const handleVerifyCode = async (code: string) => {
+    dispatch(clearError());
+    const result = await dispatch(verifyPhoneCode(code));
 
-    // Симуляция проверки кода (для демо код = 1234)
-    setTimeout(() => {
-      if (code === "1234") {
-        dispatch(verifyCodeSuccess());
-      } else {
-        dispatch(verifyCodeFailure("Неверный код подтверждения"));
-      }
-    }, 800);
+    if (verifyPhoneCode.rejected.match(result)) {
+      return;
+    }
   };
 
   const handleBack = () => {
@@ -107,6 +100,8 @@ export function LoginPage() {
           Продолжая, вы соглашаетесь с условиями использования платформы
         </p>
       </div>
+
+      <div id="recaptcha-container" />
     </div>
   );
 }

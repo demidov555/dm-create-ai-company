@@ -14,7 +14,7 @@ import { Input } from "../components/ui/input";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { selectProjects, selectProjectsError, selectProjectsStatus } from "../store/selectors/projectsSelectors";
 import { deleteProject, fetchProjects } from "../store/slices/projectsSlice";
-import { openCreateProjectDialog } from "../store/slices/uiSlice";
+import { openDialog } from "../store/slices/uiSlice";
 
 export function ProjectsPage() {
   const navigate = useNavigate();
@@ -55,7 +55,7 @@ export function ProjectsPage() {
       dispatch(deleteProject(id));
     }
   };
- 
+
   const filteredProjects = projects.filter((project) =>
     project.name?.toLowerCase().includes(searchQuery?.toLowerCase()) ||
     project.description?.toLowerCase().includes(searchQuery?.toLowerCase())
@@ -73,7 +73,7 @@ export function ProjectsPage() {
             </p>
           </div>
           <Button
-            onClick={() => dispatch(openCreateProjectDialog())}
+            onClick={() => dispatch(openDialog("createProjectsDialog"))}
             className="bg-primary hover:bg-primary/90 text-primary-foreground"
           >
             <Plus className="h-4 w-4 mr-2" />
@@ -108,7 +108,7 @@ export function ProjectsPage() {
               Создайте свой первый проект, чтобы начать работу
             </p>
             <Button
-              onClick={() => dispatch(openCreateProjectDialog())}
+              onClick={() => dispatch(openDialog("createProjectsDialog"))}
               className="bg-primary hover:bg-primary/90 text-primary-foreground"
             >
               <Plus className="h-4 w-4 mr-2" />
@@ -128,7 +128,7 @@ export function ProjectsPage() {
                     <Folder className="h-6 w-6 text-primary" />
                   </div>
                   <DropdownMenu>
-                    <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                    <DropdownMenuTrigger asChild onClick={(e: MouseEvent) => e.stopPropagation()}>
                       <button
                         className="h-8 w-8 rounded-md inline-flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-accent hover:text-accent-foreground"
                       >
@@ -136,12 +136,12 @@ export function ProjectsPage() {
                       </button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={(e) => e.stopPropagation()}>
+                      <DropdownMenuItem onClick={(e: MouseEvent) => e.stopPropagation()}>
                         <Edit className="h-4 w-4 mr-2" />
                         Редактировать
                       </DropdownMenuItem>
                       <DropdownMenuItem
-                        onClick={(e) => {
+                        onClick={(e: MouseEvent) => {
                           e.stopPropagation();
                           handleDeleteProject(project.projectId);
                         }}

@@ -10,8 +10,14 @@ interface OTPInputProps {
   error?: string | null;
 }
 
-export function OTPInput({ phoneNumber, onSubmit, onBack, isLoading, error }: OTPInputProps) {
-  const [otp, setOtp] = useState(["", "", "", ""]);
+export function OTPInput({
+  phoneNumber,
+  onSubmit,
+  onBack,
+  isLoading = false,
+  error,
+}: OTPInputProps) {
+  const [otp, setOtp] = useState(["", "", "", "", "", ""]); // ← 6 полей
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   const handleChange = (index: number, value: string) => {
@@ -21,11 +27,13 @@ export function OTPInput({ phoneNumber, onSubmit, onBack, isLoading, error }: OT
     newOtp[index] = value.slice(-1);
     setOtp(newOtp);
 
-    if (value && index < 3) {
+    // Автофокус вперёд
+    if (value && index < 5) {
       inputRefs.current[index + 1]?.focus();
     }
 
-    if (newOtp.every((digit) => digit !== "") && value) {
+    // Авто-сабмит при заполнении всех
+    if (newOtp.every((digit) => digit !== "")) {
       onSubmit(newOtp.join(""));
     }
   };
@@ -38,24 +46,24 @@ export function OTPInput({ phoneNumber, onSubmit, onBack, isLoading, error }: OT
 
   const handlePaste = (e: React.ClipboardEvent) => {
     e.preventDefault();
-    const pastedData = e.clipboardData.getData("text").slice(0, 4);
-    if (!/^\d+$/.test(pastedData)) return;
+    const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
+    if (!pasted) return;
 
-    const newOtp = pastedData.split("").concat(Array(4 - pastedData.length).fill("")).slice(0, 4);
+    const newOtp = [...pasted.split(""), ...Array(6).fill("")].slice(0, 6);
     setOtp(newOtp);
 
-    const lastIndex = Math.min(pastedData.length, 3);
-    inputRefs.current[lastIndex]?.focus();
+    const nextFocus = Math.min(pasted.length, 5);
+    inputRefs.current[nextFocus]?.focus();
 
-    if (pastedData.length === 4) {
-      onSubmit(pastedData);
+    if (pasted.length === 6) {
+      onSubmit(pasted);
     }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const code = otp.join("");
-    if (code.length === 4) {
+    if (code.length === 6) {
       onSubmit(code);
     }
   };
@@ -114,7 +122,7 @@ export function OTPInput({ phoneNumber, onSubmit, onBack, isLoading, error }: OT
 
       <div className="text-center">
         <p className="text-sm text-muted-foreground">
-          Для демо используйте код: <span className="text-foreground">1234</span>
+          Для демо используйте код: <span className="text-foreground font-mono">123456</span>
         </p>
       </div>
     </form>

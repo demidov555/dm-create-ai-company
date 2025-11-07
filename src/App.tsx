@@ -1,14 +1,15 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import { Provider } from "react-redux";
 import { store } from "./store/store";
-import { AppSidebar } from "./components/AppSidebar";
+import { ProtectedRoute } from "./components/ProtectedRoute";
+import { LoginPage } from "./pages/LoginPage";
 import { HomePage } from "./pages/HomePage";
 import { ProjectsPage } from "./pages/ProjectsPage";
 import { ProjectDetailPage } from "./pages/ProjectDetailPage";
 import { SettingsPage } from "./pages/SettingsPage";
+import { AppSidebar } from "./components/AppSidebar";
 import { CreateProjectDialog } from "./components/CreateProjectDialog";
 import { Toaster } from "./components/ui/sonner";
-import { LoginPage } from "./pages/LoginPage";
 
 function AppLayout() {
   return (
@@ -31,7 +32,14 @@ export default function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
-          <Route path="/*" element={<AppLayout />} />
+          <Route
+            path="/*"
+            element={
+              <ProtectedRoute>
+                <AppLayout />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
         <CreateProjectDialog />
       </BrowserRouter>

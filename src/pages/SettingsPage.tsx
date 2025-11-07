@@ -3,12 +3,14 @@ import { Label } from "../components/ui/label";
 import { Switch } from "../components/ui/switch";
 import { Button } from "../components/ui/button";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
-import { setTheme, clearNotifications } from "../store/slices/uiSlice";
+import { setTheme } from "../store/slices/uiSlice";
+import { selectPhoneNumber } from "../store/selectors/authSelectors";
+import { logoutUser } from "../store/slices/authSlice";
 
 export function SettingsPage() {
   const dispatch = useAppDispatch();
   const theme = useAppSelector((state) => state.ui.theme);
-  const notifications = useAppSelector((state) => state.ui.notifications);
+  const phone = useAppSelector(selectPhoneNumber);
 
   const handleThemeToggle = () => {
     dispatch(setTheme(theme === "light" ? "dark" : "light"));
@@ -18,6 +20,10 @@ export function SettingsPage() {
       document.documentElement.classList.remove("dark");
     }
   };
+
+  const logout = () => {
+    dispatch(logoutUser());
+  }
 
   return (
     <div className="flex-1 overflow-auto">
@@ -52,16 +58,21 @@ export function SettingsPage() {
             <div className="space-y-4">
               <div>
                 <Label className="text-sm text-foreground mb-2 block">
-                  Email
+                  Номер телефона
                 </Label>
                 <input
-                  type="email"
-                  value="user@example.com"
-                  className="w-full px-4 py-2 bg-input-background border border-border rounded-lg text-foreground"
+                  type="phone"
+                  value={phone || ''}
+                  className="w-full px-4 py-2 bg-background border border-border rounded-lg text-foreground"
                   readOnly
                 />
               </div>
-              <div className="pt-4">
+            </div>
+            <div className="space-y-4">
+              <div className="pt-1">
+                <Button click={logout}>Выйти из аккаунта</Button>
+              </div>
+              <div className="pt-1">
                 <Button variant="destructive">Удалить аккаунт</Button>
               </div>
             </div>
