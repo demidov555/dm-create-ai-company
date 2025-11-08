@@ -1,4 +1,3 @@
-import { useChatSSE } from "../../hooks/useChatSSE";
 import { sendMessage } from "../../store/slices/chatSlice";
 import { MessageList } from "./MessageList";
 import { TaskForm } from "./TaskForm";
@@ -31,9 +30,9 @@ export default function ChatCard({ messages, projectId, userId, role }: ChatCard
   };
 
   return (
-    <Card>
+    <>
       <MessageList messages={messages} isLoading={isLoading} />
       <TaskForm onSendMessage={handleSendMessage} />
-    </Card>
+    </>
   );
 }

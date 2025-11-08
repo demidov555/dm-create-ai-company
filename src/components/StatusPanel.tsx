@@ -1,28 +1,17 @@
-import { useParams } from "react-router-dom";
 import { Rocket, Edit, TrendingUp } from "lucide-react";
 import { Button } from "./ui/button";
 import { Card } from "./ui/card";
 import { Progress } from "./ui/progress";
 import { Badge } from "./ui/badge";
-import { useAppDispatch, useAppSelector } from "../store/hooks";
-import { addNotification } from "../store/slices/uiSlice";
 
 interface StatusPanelProps {
   onEdit: () => void;
+  status: string;
+  lastUpdated: string;
 }
 
-export function StatusPanel({ onEdit }: StatusPanelProps) {
-  const { id: projectId } = useParams<{ id: string }>();
-  const dispatch = useAppDispatch();
-  
-  const project = useAppSelector((state) =>  null);
-
-  if (!project) return null;
-
-  const { status, lastUpdated } = project;
-  
-  // Calculate progress based on status
-  const progress = status === "completed" ? 100 : status === "in-progress" ? 45 : 20;
+export function StatusPanel({ onEdit, status, lastUpdated }: StatusPanelProps) {
+  const progress = status === "completed" ? 100 : status === "in-progress" ? 15 : 20;
 
   const getStatusColor = () => {
     switch (status) {
@@ -45,16 +34,6 @@ export function StatusPanel({ onEdit }: StatusPanelProps) {
         return "Активен";
     }
   };
-
-  // const handleDeploy = () => {
-  //   if (projectId) {
-  //     dispatch(updateProjectStatus({ id: projectId, status: "completed" }));
-  //     dispatch(addNotification({
-  //       type: "success",
-  //       message: "🚀 Деплой запущен! Ваш сайт будет доступен через несколько минут.",
-  //     }));
-  //   }
-  // };
 
   return (
     <Card className="p-6 border border-border">

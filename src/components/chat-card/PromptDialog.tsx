@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useForm } from "react-hook-form";
 
-import { Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle } from "../ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogBody } from "../ui/dialog";
 import { Button } from "../ui/button";
 import { Textarea } from "../ui/textarea";
 import { selectDialogOpen, closeDialog } from "../../store/slices/uiSlice";
@@ -86,7 +86,7 @@ export function PromptDialog({ promptProp, type }: {
           <DialogTitle>Опишите задачу — AI сгенерирует код, структуру и документацию</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <DialogBody>
           <div className="space-y-2">
             <Textarea
               {...register("prompt")}
@@ -103,20 +103,20 @@ export function PromptDialog({ promptProp, type }: {
               <p className="text-sm text-destructive">{error}</p>
             )}
           </div>
+        </DialogBody>
 
-          <DialogFooter className="gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => dispatch(closeDialog(type))}
-            >
-              Отмена
-            </Button>
-            <Button type="submit" disabled={isSubmitting || !!error}>
-              {isSubmitting ? "Создаём..." : "Создать проект"}
-            </Button>
-          </DialogFooter>
-        </form>
+        <DialogFooter className="gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => dispatch(closeDialog(type))}
+          >
+            Отмена
+          </Button>
+          <Button onClick={handleSubmit(onSubmit)} disabled={isSubmitting || !!error}>
+            {isSubmitting ? "Создаём..." : "Создать проект"}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

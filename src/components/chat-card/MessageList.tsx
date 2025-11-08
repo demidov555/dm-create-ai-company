@@ -30,8 +30,8 @@ export function MessageList({ messages, isLoading }: MessageListProps) {
 
   return (
     <>
-      <ScrollArea className="h-[400px] p-4">
-        <div className="space-y-4">
+      <ScrollArea className="h-[80vh]">
+        <div className={!messages.length ? "flex justify-center items-center space-y-4 h-[80vh]" : "space-y-4 h-[80vh]"}>
           {messages.map((message, i) => {
             const isLast = i === messages.length - 1;
             return (
@@ -40,9 +40,9 @@ export function MessageList({ messages, isLoading }: MessageListProps) {
                 ref={isLast ? lastMsgRef : undefined}
                 className={`flex gap-3 ${message.role === "user" ? "flex-row-reverse" : ""}`}
               >
-                <div className={`flex-1 ${message.role === "user" ? "text-right" : ""}`}>
+                <div className={`flex-1 pr-3 ${message.role === "user" ? "text-right" : ""}`}>
                   <p
-                    className={`text-left text-sm text-foreground/90 rounded-lg p-3 inline-block max-w-[80%] whitespace-break-spaces ${message.role === "user" ? "bg-secondary/50" : ""
+                    className={`text-left break-all text-sm text-foreground/90 rounded-lg p-3 inline-block max-w-[80%] whitespace-break-spaces ${message.role === "user" ? "bg-secondary/50" : ""
                       }`}
                   >
                     {message.message}
@@ -53,19 +53,23 @@ export function MessageList({ messages, isLoading }: MessageListProps) {
           })}
 
           {!messages.length && (
-            <div className="flex flex-col items-center justify-center gap-6 text-sm text-muted-foreground mt-6">
+            <div className="flex flex-col items-center justify-center gap-6 text-sm">
               <span>
                 Начните с описания задачи продукт менеджеру.
               </span>
-              <Button variant="secondary" size="lg" className="" onClick={() => openPromptDialog('detaildPrompt')}>Деальногый промпт</Button>
-              <Button variant="secondary" size="lg" className="" onClick={() => openPromptDialog('userFrendlyPrompt')}>Простой промпт</Button>
-              <Button variant="secondary" size="lg" className="" onClick={() => openPromptDialog('readyPrompt')}>Готовый промпт</Button>
+
+              <div className="flex gap-4">
+                <Button variant="secondary" size="lg" className="" onClick={() => openPromptDialog('detaildPrompt')}>Деальногый промпт</Button>
+                <Button variant="secondary" size="lg" className="" onClick={() => openPromptDialog('userFrendlyPrompt')}>Простой промпт</Button>
+                <Button variant="secondary" size="lg" className="" onClick={() => openPromptDialog('readyPrompt')}>Готовый промпт</Button>
+              </div>
             </div>
           )}
 
           {isLoading && (<Loader2 className="h-4 w-4 animate-spin text-blue-600" />)}
         </div>
       </ScrollArea>
+
       <PromptDialog promptProp={DETAILED_PROMPT_TEMPLATE} type="detaildPrompt" />
       <PromptDialog promptProp={USER_FRIENDLY_PROMPT_TEMPLATE} type="userFrendlyPrompt" />
       <PromptDialog promptProp={READY_LANDING_PROMPT} type="readyPrompt" />

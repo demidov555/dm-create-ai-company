@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Dialog,
+  DialogBody,
   DialogContent,
   DialogDescription,
   DialogHeader,
@@ -87,73 +88,76 @@ export function CreateProjectDialog() {
             Опишите ваш проект и выберите команду AI агентов
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-5 mt-4">
-          <div className="space-y-2">
-            <Label htmlFor="name">Название проекта</Label>
-            <Input
-              id="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Мой веб-проект"
-              className="bg-input-background border-border"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="description">Описание</Label>
-            <Textarea
-              id="description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Краткое описание целей проекта..."
-              className="min-h-[80px] resize-none bg-input-background border-border"
-            />
-          </div>
-          <div className="space-y-3">
-            <Label>Команда агентов</Label>
-            <div className="space-y-3 border border-border rounded-lg p-4 bg-secondary/30">
-              {availableAgents.map((agent) => (
-                <div key={agent.id} className="flex items-center gap-3">
-                  <Checkbox
-                    id={agent.id}
-                    checked={selectedAgents.includes(agent.id)}
-                    onCheckedChange={() => toggleAgent(agent.id)}
-                    disabled={agent.required}
-                  />
-                  <label
-                    htmlFor={agent.id}
-                    className="flex items-center gap-2 cursor-pointer flex-1"
-                  >
-                    <Bot className="h-4 w-4 text-primary" />
-                    <span className="text-sm text-foreground">
-                      {agent.name}
-                      {agent.required && (
-                        <span className="text-xs text-muted-foreground ml-2">
-                          (обязательно)
-                        </span>
-                      )}
-                    </span>
-                  </label>
-                </div>
-              ))}
+
+        <DialogBody>
+          <form onSubmit={handleSubmit} className="space-y-5 mt-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">Название проекта</Label>
+              <Input
+                id="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Мой веб-проект"
+                className="bg-input-background border-border"
+              />
             </div>
-          </div>
-          <div className="flex justify-end gap-3 pt-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleClose}
-            >
-              Отмена
-            </Button>
-            <Button
-              type="submit"
-              disabled={!name.trim()}
-              className="bg-primary hover:bg-primary/90 text-primary-foreground"
-            >
-              Создать проект
-            </Button>
-          </div>
-        </form>
+            <div className="space-y-2">
+              <Label htmlFor="description">Описание</Label>
+              <Textarea
+                id="description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Краткое описание целей проекта..."
+                className="min-h-[80px] resize-none bg-input-background border-border"
+              />
+            </div>
+            <div className="space-y-3">
+              <Label>Команда агентов</Label>
+              <div className="space-y-3 border border-border rounded-lg p-4 bg-secondary/30">
+                {availableAgents.map((agent) => (
+                  <div key={agent.id} className="flex items-center gap-3">
+                    <Checkbox
+                      id={agent.id}
+                      checked={selectedAgents.includes(agent.id)}
+                      onCheckedChange={() => toggleAgent(agent.id)}
+                      disabled={agent.required}
+                    />
+                    <label
+                      htmlFor={agent.id}
+                      className="flex items-center gap-2 cursor-pointer flex-1"
+                    >
+                      <Bot className="h-4 w-4 text-primary" />
+                      <span className="text-sm text-foreground">
+                        {agent.name}
+                        {agent.required && (
+                          <span className="text-xs text-muted-foreground ml-2">
+                            (обязательно)
+                          </span>
+                        )}
+                      </span>
+                    </label>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="flex justify-end gap-3 pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleClose}
+              >
+                Отмена
+              </Button>
+              <Button
+                type="submit"
+                disabled={!name.trim()}
+                className="bg-primary hover:bg-primary/90 text-primary-foreground"
+              >
+                Создать проект
+              </Button>
+            </div>
+          </form>
+        </DialogBody>
       </DialogContent>
     </Dialog>
   );

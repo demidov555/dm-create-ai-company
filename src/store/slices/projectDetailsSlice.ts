@@ -1,6 +1,60 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import api from "../../services/api";
 
+const mockData = {
+  projectInfo: {
+    projectId: 1,
+    name: 'Фабрика создания приложения',
+    description: 'Платформа, предназначенная для быстрого и удобного создания цифровых продуктов с помощью ai. Она объединяет инструменты, шаблоны и процессы, позволяя разработчикам, командам и стартапам запускать веб- и мобильные приложения с минимальными затратами времени и ресурсов. Проект ориентирован на автоматизацию, гибкость и масштабируемость, превращая разработку в понятный и управляемый процесс.',
+    status: 'in-progress',
+    agent_count: 5,
+    last_updated: '22.11.25',
+  },
+  agents: [
+    {
+      projectId: 1,
+      agentId: 1,
+      currentTask: 'Разрабатываю фронтенд на react',
+      name: 'AI Frontend agent',
+      role: 'Frontend разработчик',
+      status: "working",
+    },
+    {
+      projectId: 1,
+      agentId: 2,
+      currentTask: 'Разрабатываю backend на py',
+      name: 'AI Backend agent',
+      role: 'Backend разработчик',
+      status: "working",
+    },
+    {
+      projectId: 1,
+      agentId: 3,
+      currentTask: 'Пока нечего тестировать',
+      name: 'AI QA agent',
+      role: 'QA специалист',
+      status: "completed",
+    },
+    {
+      projectId: 1,
+      agentId: 4,
+      currentTask: 'Ожиданю разработчиков, чтобы поднять инфраструктуру',
+      name: 'AI DevOps agent',
+      role: 'DevOps специалист',
+      status: "idle",
+    }
+  ],
+  metrica: {
+    progress: {
+      percent: 10,
+      lastUpdate: '22.11.25',
+    },
+    componentCounter: 15,
+    codeStringCoutner: 490,
+    testOverageCouter: 75,
+  },
+} as ProjectDetails;
+
 export interface ProjectDetails {
   projectInfo: {
     projectId: number | string;
@@ -27,13 +81,6 @@ export interface ProjectDetails {
     codeStringCoutner: number;
     testOverageCouter: number;
   };
-  messages: {
-    projectId: number | string;
-    userId: number;
-    timestamp?: string;
-    role: string;
-    message: string;
-  }[];
 }
 
 interface ProjectDetailsState {
@@ -47,38 +94,6 @@ const initialState: ProjectDetailsState = {
     projectInfo: {} as any,
     agents: [],
     metrica: {} as any,
-    messages: [
-      {
-        "projectId": '1',
-        "message": "Привет, агент!",
-        "role": "user",
-        "userId": 101
-      },
-      {
-        "projectId": '1',
-        "message": "Привет! Какое приложение я могу собрать для тебя?",
-        "role": "agent",
-        "userId": 101
-      },
-      {
-        "projectId": '1',
-        "message": "Я хочу веб-приложение для продвижения товаров и услуг",
-        "role": "user",
-        "userId": 101
-      },
-      {
-        "projectId": '1',
-        "message": "Отлично! Могу я уточнить ТЗ?",
-        "role": "agent",
-        "userId": 101
-      },
-      {
-        "projectId": '1',
-        "message": "Приложение должно быть на Angular и Node.js. Сделай минимальный MVP.",
-        "role": "user",
-        "userId": 101
-      }
-    ]
   },
   status: "idle",
   error: null,
@@ -120,6 +135,7 @@ const projectDetailsSlice = createSlice({
       .addCase(fetchProjectDetails.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload || "Unknown error";
+        state.project = mockData;
       })
   },
 });
