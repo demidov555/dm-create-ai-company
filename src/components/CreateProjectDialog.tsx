@@ -7,13 +7,13 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "./ui/dialog";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
-import { Textarea } from "./ui/textarea";
-import { Button } from "./ui/button";
+} from "@ui/dialog";
+import { Input } from "@ui/input";
+import { Label } from "@ui/label";
+import { Textarea } from "@ui/textarea";
+import { Button } from "@ui/button";
 import { Bot } from "lucide-react";
-import { Checkbox } from "./ui/checkbox";
+import { Checkbox } from "@ui/checkbox";
 import { useAppDispatch } from "../store/hooks";
 import { addProject } from "../store/slices/projectsSlice";
 import { closeDialog, selectDialogOpen } from "../store/slices/uiSlice";

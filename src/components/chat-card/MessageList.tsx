@@ -1,8 +1,8 @@
 import { useEffect, useRef } from "react";
 import { Message } from "../../store/slices/chatSlice";
-import { ScrollArea } from "../ui/scroll-area";
+import { ScrollArea } from "@ui/scroll-area";
 import { Loader2 } from "lucide-react";
-import { Button } from "../ui/button";
+import { Button } from "@ui/button";
 import { PromptDialog } from "./PromptDialog";
 import { useDispatch } from "react-redux";
 import { openDialog } from "../../store/slices/uiSlice";

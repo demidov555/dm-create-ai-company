@@ -1,8 +1,8 @@
 import { Rocket, Edit, TrendingUp } from "lucide-react";
-import { Button } from "./ui/button";
-import { Card } from "./ui/card";
-import { Progress } from "./ui/progress";
-import { Badge } from "./ui/badge";
+import { Button } from "@ui/button";
+import { Card } from "@ui/card";
+import { Progress } from "@ui/progress";
+import { Badge } from "@ui/badge";
 
 interface StatusPanelProps {
   onEdit: () => void;

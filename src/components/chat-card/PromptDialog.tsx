@@ -2,9 +2,9 @@ import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useForm } from "react-hook-form";
 
-import { Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogBody } from "../ui/dialog";
-import { Button } from "../ui/button";
-import { Textarea } from "../ui/textarea";
+import { Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogBody } from "@ui/dialog";
+import { Button } from "@ui/button";
+import { Textarea } from "@ui/textarea";
 import { selectDialogOpen, closeDialog } from "../../store/slices/uiSlice";
 import { notificationService } from "../../services/notification";
 import { addMessage } from "../../store/slices/chatSlice";

@@ -1,6 +1,6 @@
 import { Bot, CheckCircle2, Loader2 } from "lucide-react";
-import { Card } from "./ui/card";
-import { Badge } from "./ui/badge";
+import { Card } from "@ui/card";
+import { Badge } from "@ui/badge";
 
 interface AgentCardProps {
   name: string;

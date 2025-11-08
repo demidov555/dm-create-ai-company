@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Phone } from "lucide-react";
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
-import { Label } from "../ui/label";
+import { Button } from "@ui/button";
+import { Input } from "@ui/input";
+import { Label } from "@ui/label";
 
 interface PhoneInputProps {
   onSubmit: (phoneNumber: string) => void;

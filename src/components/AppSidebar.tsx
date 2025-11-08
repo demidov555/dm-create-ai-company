@@ -1,6 +1,6 @@
 import { Home, FolderOpen, Settings, Sparkles } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@ui/tooltip";
 
 export function AppSidebar() {
   const location = useLocation();

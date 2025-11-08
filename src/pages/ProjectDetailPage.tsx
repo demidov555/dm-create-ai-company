@@ -3,15 +3,15 @@ import { useParams, useNavigate } from "react-router-dom";
 import { AgentCard } from "../components/AgentCard";
 import { StatusPanel } from "../components/StatusPanel";
 import { Code2, FileText, TrendingUp, LayoutDashboard, Users, CheckSquare, Settings } from "lucide-react";
-import { Button } from "../components/ui/button";
-import { Card } from "../components/ui/card";
+import { Button } from "@ui/button";
+import { Card } from "@ui/card";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { selectProjectDetails } from "../store/selectors/projectDetailsSelectors";
 import { fetchProjectDetails } from "../store/slices/projectDetailsSlice";
 import ChatCard from "../components/chat-card/ChatCard"
 import { selectMessages } from "../store/selectors/chatSelectors";
 import { fetchHistoryMessages } from "../store/slices/chatSlice";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@ui/tabs";
 
 export function ProjectDetailPage() {
   const { id } = useParams<{ id: string }>();

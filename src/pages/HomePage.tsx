@@ -1,10 +1,10 @@
 import { ArrowRight, Sparkles, Zap, Users, Rocket, FolderOpen, TrendingUp } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { Button } from "../components/ui/button";
-import { Card } from "../components/ui/card";
 import { useAppSelector } from "../store/hooks";
 import { selectProjectsCount } from "../store/selectors/projectsSelectors";
 import { selectWorkingAgentsCount } from "../store/selectors/agentSelectors";
+import { Button } from "@ui/button";
+import { Card } from "@ui/card";
 
 export function HomePage() {
   const navigate = useNavigate();

@@ -1,7 +1,7 @@
 import { sendMessage } from "../../store/slices/chatSlice";
 import { MessageList } from "./MessageList";
 import { TaskForm } from "./TaskForm";
-import { Card } from "../ui/card";
+import { Card } from "@ui/card";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { selectIsConnected, selectIsLoading } from "../../store/selectors/chatSelectors";
 

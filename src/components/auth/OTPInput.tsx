@@ -1,6 +1,6 @@
 import { useState, useRef, KeyboardEvent } from "react";
 import { ArrowLeft } from "lucide-react";
-import { Button } from "../ui/button";
+import { Button } from "@ui/button";
 
 interface OTPInputProps {
   phoneNumber: string;

@@ -9,7 +9,7 @@ import { ProjectDetailPage } from "./pages/ProjectDetailPage";
 import { SettingsPage } from "./pages/SettingsPage";
 import { AppSidebar } from "./components/AppSidebar";
 import { CreateProjectDialog } from "./components/CreateProjectDialog";
-import { Toaster } from "./components/ui/sonner";
+import { Toaster } from "@ui/sonner";
 
 function AppLayout() {
   return (

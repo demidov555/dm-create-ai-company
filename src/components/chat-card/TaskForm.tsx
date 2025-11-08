@@ -1,7 +1,7 @@
 import { useState, useRef, useLayoutEffect } from "react";
 import { ArrowUp } from "lucide-react";
-import { Textarea } from "../ui/textarea";
-import { Button } from "../ui/button";
+import { Textarea } from "@ui/textarea";
+import { Button } from "@ui/button";
 
 export function TaskForm({ onSendMessage }: { onSendMessage: (msg: string) => void }) {
   const [message, setMessage] = useState("");

@@ -1,7 +1,7 @@
-import { Card } from "../components/ui/card";
-import { Label } from "../components/ui/label";
-import { Switch } from "../components/ui/switch";
-import { Button } from "../components/ui/button";
+import { Card } from "@ui/card";
+import { Label } from "@ui/label";
+import { Switch } from "@ui/switch";
+import { Button } from "@ui/button";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { setTheme } from "../store/slices/uiSlice";
 import { selectPhoneNumber } from "../store/selectors/authSelectors";

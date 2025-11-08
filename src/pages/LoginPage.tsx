@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Sparkles } from "lucide-react";
-import { Card } from "../components/ui/card";
+import { Card } from "@ui/card";
 import { PhoneInput } from "../components/auth/PhoneInput";
 import { OTPInput } from "../components/auth/OTPInput";
 import { useAppDispatch, useAppSelector } from "../store/hooks";

@@ -1,16 +1,16 @@
 import { useEffect, useState } from "react";
 import { Plus, Folder, MoreVertical, Trash2, Edit } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { Button } from "../components/ui/button";
-import { Card } from "../components/ui/card";
-import { Badge } from "../components/ui/badge";
+import { Button } from "@ui/button";
+import { Card } from "@ui/card";
+import { Badge } from "@ui/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "../components/ui/dropdown-menu";
-import { Input } from "../components/ui/input";
+} from "@ui/dropdown-menu";
+import { Input } from "@ui/input";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { selectProjects, selectProjectsError, selectProjectsStatus } from "../store/selectors/projectsSelectors";
 import { deleteProject, fetchProjects } from "../store/slices/projectsSlice";
