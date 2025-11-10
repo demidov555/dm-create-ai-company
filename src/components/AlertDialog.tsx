@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import {
-  AlertDialog,
+  AlertDialogContainer,
   AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
@@ -16,7 +16,7 @@ import { cn } from "@ui/utils";
 
 type AlertType = "warning" | "error" | "info" | "success";
 
-interface WarningDialogProps {
+interface AlertDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   type?: AlertType;
@@ -34,7 +34,8 @@ const iconMap: Record<AlertType, React.ReactNode> = {
   success: <CheckCircle className="h-5 w-5" />,
 };
 
-export const WarningDialog = React.forwardRef<HTMLDivElement, WarningDialogProps>(
+
+export const AlertDialog = React.forwardRef<HTMLDivElement, AlertDialogProps>(
   (
     {
       open,
@@ -52,18 +53,10 @@ export const WarningDialog = React.forwardRef<HTMLDivElement, WarningDialogProps
 
     const iconBgClasses = cn(
       "flex h-10 w-10 items-center justify-center rounded-full",
-      type === "warning" && "bg-destructive/10 text-destructive dark:bg-destructive/20",
+      type === "warning" && "bg-warn text-destructive",
       type === "error" && "bg-red-500/10 text-red-500 dark:bg-red-500/20",
       type === "info" && "bg-blue-500/10 text-blue-500 dark:bg-blue-500/20",
       type === "success" && "bg-green-500/10 text-green-500 dark:bg-green-500/20"
-    );
-
-    const confirmButtonClass = cn(
-      "transition-colors",
-      type === "warning" && "bg-destructive text-destructive-foreground hover:bg-destructive/90",
-      type === "error" && "bg-red-600 text-white hover:bg-red-700",
-      type === "success" && "bg-green-600 text-white hover:bg-green-700",
-      type === "info" && "bg-blue-600 text-white hover:bg-blue-700"
     );
 
     const handleConfirm = () => {
@@ -72,30 +65,32 @@ export const WarningDialog = React.forwardRef<HTMLDivElement, WarningDialogProps
     };
 
     return (
-      <AlertDialog open={open} onOpenChange={onOpenChange}>
-        <AlertDialogContent ref={ref} className="sm:max-w-md">
+      <AlertDialogContainer open={open} onOpenChange={onOpenChange}>
+        <AlertDialogContent ref={ref} className="sm:max-w-md" onEscapeKeyDown={() => onOpenChange(false)}>
           <AlertDialogHeader>
             <div className="flex items-center gap-3">
               <div className={iconBgClasses}>
                 {Icon}
               </div>
-              <AlertDialogTitle>{title}</AlertDialogTitle>
+              <AlertDialogTitle><span className="text-foreground">{title}</span></AlertDialogTitle>
             </div>
-            <AlertDialogDescription className="mt-2">
-              {description}
-            </AlertDialogDescription>
+            {description && <AlertDialogDescription className="mt-2">
+              {typeof description === 'string' && <span className="text-foreground">{description}</span>}
+              {typeof description !== 'string' && description}
+            </AlertDialogDescription>}
+
           </AlertDialogHeader>
-          
+
           <AlertDialogFooter className="mt-4">
             <AlertDialogCancel>{cancelText}</AlertDialogCancel>
-            <AlertDialogAction onClick={handleConfirm} className={confirmButtonClass}>
+            <AlertDialogAction onClick={handleConfirm} variant={type === 'error' ? 'destructive' : 'default'}>
               {confirmText}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
-      </AlertDialog>
+      </AlertDialogContainer>
     );
   }
 );
 
-WarningDialog.displayName = "WarningDialog";
+AlertDialog.displayName = "AlertDialog";

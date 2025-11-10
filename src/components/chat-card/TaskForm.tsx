@@ -1,6 +1,5 @@
 import { useState, useRef, useLayoutEffect } from "react";
 import { ArrowUp } from "lucide-react";
-import { Textarea } from "@ui/textarea";
 import { Button } from "@ui/button";
 
 export function TaskForm({ onSendMessage }: { onSendMessage: (msg: string) => void }) {
@@ -55,8 +54,7 @@ export function TaskForm({ onSendMessage }: { onSendMessage: (msg: string) => vo
           px-4 py-3 pr-14 text-foreground placeholder:text-muted-foreground
           rounded-xl text-base leading-relaxed
           outline-none ring-0 focus:outline-none focus:ring-0 focus:border-input
-          overflow-hidden transition-all duration-200
-          field-sizing-content
+          transition-all duration-200
         `}
         rows={1}
         autoFocus

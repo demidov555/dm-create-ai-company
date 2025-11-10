@@ -1,5 +1,6 @@
 import { VITE_API_URL } from "../../configs/env";
 import { TokenResponse } from "../store/slices/authSlice";
+import { localStorageService } from "./localStorageService";
 
 class AuthService {
   private readonly API_URL = VITE_API_URL
@@ -29,18 +30,18 @@ class AuthService {
   }
 
   logout(): void {
-    localStorage.removeItem(this.TOKEN_KEY);
-    localStorage.removeItem(this.PHONE_KEY);
-    localStorage.removeItem(this.UID_KEY);
-    localStorage.removeItem(this.AUTH_STATE_KEY);
+    localStorageService.removeItem(this.TOKEN_KEY);
+    localStorageService.removeItem(this.PHONE_KEY);
+    localStorageService.removeItem(this.UID_KEY);
+    localStorageService.removeItem(this.AUTH_STATE_KEY);
   }
 
   getToken(): string | null {
-    return localStorage.getItem(this.TOKEN_KEY);
+    return localStorageService.getItem(this.TOKEN_KEY);
   }
 
   getPhone(): string | null {
-    return localStorage.getItem(this.PHONE_KEY);
+    return localStorageService.getItem(this.PHONE_KEY);
   }
 
   isAuthenticated(): boolean {
@@ -48,11 +49,11 @@ class AuthService {
   }
 
   private setToken(token: string): void {
-    localStorage.setItem(this.TOKEN_KEY, token);
+    localStorageService.setItem(this.TOKEN_KEY, token);
   }
 
   private setPhone(phone: string): void {
-    localStorage.setItem(this.PHONE_KEY, phone);
+    localStorageService.setItem(this.PHONE_KEY, phone);
   }
 }
 

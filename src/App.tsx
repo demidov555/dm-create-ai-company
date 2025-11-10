@@ -10,6 +10,8 @@ import { SettingsPage } from "./pages/SettingsPage";
 import { AppSidebar } from "./components/AppSidebar";
 import { CreateProjectDialog } from "./components/CreateProjectDialog";
 import { Toaster } from "@ui/sonner";
+import { useEffect } from "react";
+import { themeService } from "@services/themeService";
 
 function AppLayout() {
   return (
@@ -27,6 +29,10 @@ function AppLayout() {
 }
 
 export default function App() {
+  useEffect(() => {
+    themeService.init();
+  }, []);
+
   return (
     <Provider store={store}>
       <BrowserRouter>

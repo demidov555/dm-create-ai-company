@@ -1,4 +1,5 @@
 import { Middleware } from "@reduxjs/toolkit";
+import { localStorageService } from "@services/localStorageService";
 
 const AUTH_STORAGE_KEY = "auth_state";
 
@@ -13,7 +14,7 @@ export const authMiddleware: Middleware = (storeAPI) => (next) => (action: any) 
     };
 
     try {
-      localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(authState));
+      localStorageService.setItem(AUTH_STORAGE_KEY, JSON.stringify(authState));
     } catch (error) {
       console.error("Failed to save auth state:", error);
     }
@@ -24,9 +25,10 @@ export const authMiddleware: Middleware = (storeAPI) => (next) => (action: any) 
 
 export const loadAuthState = () => {
   try {
-    const serializedState = localStorage.getItem(AUTH_STORAGE_KEY);
+    const serializedState = localStorageService.getItem<string>(AUTH_STORAGE_KEY);
     if (serializedState === null) return undefined;
-    return JSON.parse(serializedState);
+
+    return serializedState;
   } catch (error) {
     console.error("Failed to load auth state:", error);
     return undefined;

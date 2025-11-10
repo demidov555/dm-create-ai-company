@@ -125,36 +125,6 @@ export function ProjectDetailPage() {
           </TabsContent>
 
           <TabsContent value="settings">
-            {/* <Card className="p-8 border border-border">
-              <h3 className="text-lg mb-6 text-foreground">Настройки проекта</h3>
-              <div className="space-y-6">
-                <div>
-                  <label className="text-sm text-foreground mb-2 block">
-                    Название проекта
-                  </label>
-                  <input
-                    type="text"
-                    value={project.projectInfo.name}
-                    className="w-full px-4 py-2 bg-input-background border border-border rounded-lg text-foreground"
-                    readOnly
-                  />
-                </div>
-                <div>
-                  <label className="text-sm text-foreground mb-2 block">
-                    Домен деплоя
-                  </label>
-                  <input
-                    type="text"
-                    value="your-project.vercel.app"
-                    className="w-full px-4 py-2 bg-input-background border border-border rounded-lg text-foreground"
-                    readOnly
-                  />
-                </div>
-                <div className="pt-4">
-                  <Button variant="destructive">Удалить проект</Button>
-                </div>
-              </div>
-            </Card> */}
             <ProjectSettings projectId={project.projectInfo.projectId} name={project.projectInfo.name} description={project.projectInfo.description} />
           </TabsContent>
         </Tabs>

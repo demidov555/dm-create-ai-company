@@ -2,6 +2,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { loadAuthState } from "../middleware/authMiddleware";
 import { sendCode, verifyPhoneCode, logout } from "./authThunks";
+import { localStorageService } from "@services/localStorageService";
 
 export type VerificationStep = "phone" | "otp" | "authenticated";
 
@@ -116,16 +117,15 @@ const authSlice = createSlice({
         state.uid = action.payload.uid.toString();
         state.verificationStep = "authenticated";
 
-        // Сохраняем в localStorage
-        localStorage.setItem("access_token", action.payload.access_token);
-        localStorage.setItem("phone", action.payload.phone || "");
-        localStorage.setItem("uid", action.payload.uid);
+        localStorageService.setItem("access_token", action.payload.access_token);
+        localStorageService.setItem("phone", action.payload.phone || "");
+        localStorageService.setItem("uid", action.payload.uid);
       })
       .addCase(verifyPhoneCode.rejected, (state, action) => {
         state.isLoading = false;
         // state.error = action.payload || "Ошибка проверки кода";  // ← типизировано!
       });
-},
+  },
 });
 
 export const {

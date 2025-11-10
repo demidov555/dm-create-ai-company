@@ -3,10 +3,10 @@ import { Label } from "@ui/label";
 import { Switch } from "@ui/switch";
 import { Button } from "@ui/button";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
-import { setTheme } from "../store/slices/uiSlice";
+import { selectTheme, toggleTheme } from "../store/slices/uiSlice";
 import { selectPhoneNumber } from "../store/selectors/authSelectors";
 import { logoutUser } from "../store/slices/authSlice";
-import { WarningDialog } from "@components/WarningDialog";
+import { AlertDialog } from "@components/AlertDialog";
 import { useState } from "react";
 
 export function SettingsPage() {
@@ -14,17 +14,8 @@ export function SettingsPage() {
   const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
-  const theme = useAppSelector((state) => state.ui.theme);
+  const theme = useAppSelector(selectTheme);
   const phone = useAppSelector(selectPhoneNumber);
-
-  const handleThemeToggle = () => {
-    dispatch(setTheme(theme === "light" ? "dark" : "light"));
-    if (theme === "light") {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
-  };
 
   const openDeleteDialog = () => {
     setIsDeleteDialogOpen(true);
@@ -56,16 +47,16 @@ export function SettingsPage() {
             <Card>
               <h2 className="text-xl mb-4 text-foreground">Внешний вид</h2>
               <div className="flex items-center justify-between">
-                <div className="space-y-1">
-                  <Label htmlFor="theme-toggle">Тёмная тема</Label>
-                  <p className="text-sm text-muted-foreground">
-                    Переключить между светлой и тёмной темой
-                  </p>
+                <div>
+                  <Label className="text-sm text-muted-foreground">
+                    Выбор темы
+                  </Label>
+                  <p className="mt-1 text-foreground font-medium">Переключить между светлой и тёмной темой</p>
                 </div>
                 <Switch
                   id="theme-toggle"
                   checked={theme === "dark"}
-                  onCheckedChange={handleThemeToggle}
+                  onCheckedChange={() => dispatch(toggleTheme())}
                 />
               </div>
             </Card>
@@ -76,11 +67,16 @@ export function SettingsPage() {
               <div className="space-y-4">
                 <div>
                   <Label className="text-sm text-muted-foreground">
+                    Имя
+                  </Label>
+                  <p className="mt-1 text-foreground font-medium">Michael</p>
+                </div>
+
+                <div>
+                  <Label className="text-sm text-muted-foreground">
                     Номер телефона
                   </Label>
-                  <p className="mt-1 text-foreground font-medium">
-                    {phone}
-                  </p>
+                  <p className="mt-1 text-foreground font-medium">{phone}</p>
                 </div>
               </div>
 
@@ -95,7 +91,7 @@ export function SettingsPage() {
         </div>
       </div>
 
-      <WarningDialog
+      <AlertDialog
         open={isLogoutDialogOpen}
         onOpenChange={setIsLogoutDialogOpen}
         title="Выйти из аккаунта?"
@@ -103,7 +99,7 @@ export function SettingsPage() {
         type="info"
       />
 
-      <WarningDialog
+      <AlertDialog
         open={isDeleteDialogOpen}
         onOpenChange={setIsDeleteDialogOpen}
         title="Удалить аккаунт?"

@@ -1,7 +1,7 @@
 import { useAppDispatch } from "@store/hooks";
 import { ProjectSettingsCard } from "./ProjectSettingsCard";
 import { deleteProject, ProjectSettingsInfo, updateProject } from "@store/slices/projectDetailsSlice";
-import { WarningDialog } from "../WarningDialog";
+import { AlertDialog } from "../AlertDialog";
 import { useState } from "react";
 
 interface ProjectSettingsProps {
@@ -34,7 +34,7 @@ export function ProjectSettings({ projectId, name, description }: ProjectSetting
         onDelete={openDeleteDialog}
       />
 
-      <WarningDialog
+      <AlertDialog
         open={isDeleteDialogOpen}
         onOpenChange={setIsDeleteDialogOpen}
         title="Удалить проект?"

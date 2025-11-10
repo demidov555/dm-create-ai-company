@@ -1,10 +1,11 @@
 import { createSelector, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../store";
+import { Theme, themeService } from "@services/themeService";
 
 interface UIState {
   dialogs: Record<string, boolean>;
   sidebarCollapsed: boolean;
-  theme: "light" | "dark";
+  theme: Theme;
   notifications: {
     id: string;
     type: "success" | "error" | "info" | "warning";
@@ -15,7 +16,7 @@ interface UIState {
 const initialState: UIState = {
   dialogs: {},
   sidebarCollapsed: false,
-  theme: "light",
+  theme: themeService.get(),
   notifications: [],
 };
 
@@ -41,8 +42,15 @@ const uiSlice = createSlice({
     },
 
     // === ТЕМА ===
-    setTheme: (state, action: PayloadAction<"light" | "dark">) => {
+    setTheme: (state, action: PayloadAction<Theme>) => {
       state.theme = action.payload;
+      themeService.set(action.payload)
+    },
+    toggleTheme: (state) => {
+      const newTheme = state.theme === "light" ? "dark" : "light";
+
+      state.theme = newTheme;
+      themeService.set(newTheme);
     },
 
     // === УВЕДОМЛЕНИЯ ===
@@ -75,7 +83,10 @@ export const {
   closeDialog,
   toggleDialog,
   toggleSidebar,
+
   setTheme,
+  toggleTheme,
+
   addNotification,
   removeNotification,
   clearNotifications,
@@ -89,7 +100,7 @@ export const selectDialogOpen = (dialogId: string) =>
   );
 
 export const selectSidebarCollapsed = (state: RootState) => state.ui.sidebarCollapsed;
-export const selectTheme = (state: RootState) => state.ui.theme;
+export const selectTheme = (state: RootState): Theme => state.ui.theme;
 export const selectNotifications = (state: RootState) => state.ui.notifications;
 
 export default uiSlice.reducer;
