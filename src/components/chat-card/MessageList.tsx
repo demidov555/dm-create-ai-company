@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { Message } from "../../store/slices/chatSlice";
 import { ScrollArea } from "@ui/scroll-area";
-import { Loader2 } from "lucide-react";
+import { Loader2, SearchCode, Terminal, User } from "lucide-react";
 import { Button } from "@ui/button";
 import { PromptDialog } from "./PromptDialog";
 import { useDispatch } from "react-redux";
@@ -54,14 +54,23 @@ export function MessageList({ messages, isLoading }: MessageListProps) {
 
           {!messages.length && (
             <div className="flex flex-col items-center justify-center gap-6 text-sm">
-              <span>
-                Начните с описания задачи продукт менеджеру.
+              <span className="text-foreground">
+                Начните с описания задачи продукт менеджеру
               </span>
 
               <div className="flex gap-4">
-                <Button variant="secondary" size="lg" className="" onClick={() => openPromptDialog('detaildPrompt')}>Деальногый промпт</Button>
-                <Button variant="secondary" size="lg" className="" onClick={() => openPromptDialog('userFrendlyPrompt')}>Простой промпт</Button>
-                <Button variant="secondary" size="lg" className="" onClick={() => openPromptDialog('readyPrompt')}>Готовый промпт</Button>
+                <Button variant="secondary" size="lg" className="" onClick={() => openPromptDialog('detaildPrompt')}>
+                  <Terminal className="h-4 w-4 mr-2" />
+                  Детальный промпт
+                </Button>
+                <Button variant="secondary" size="lg" className="" onClick={() => openPromptDialog('userFrendlyPrompt')}>
+                  <SearchCode className="h-4 w-4 mr-2" />
+                  Простой промпт
+                </Button>
+                <Button variant="secondary" size="lg" className="" onClick={() => openPromptDialog('readyPrompt')}>
+                  <User className="h-4 w-4 mr-2" />
+                  Готовый промпт
+                </Button>
               </div>
             </div>
           )}

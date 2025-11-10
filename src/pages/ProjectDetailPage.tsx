@@ -1,17 +1,18 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { AgentCard } from "../components/AgentCard";
 import { StatusPanel } from "../components/StatusPanel";
-import { Code2, FileText, TrendingUp, LayoutDashboard, Users, CheckSquare, Settings } from "lucide-react";
+import { Code2, FileText, TrendingUp } from "lucide-react";
 import { Button } from "@ui/button";
 import { Card } from "@ui/card";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { selectProjectDetails } from "../store/selectors/projectDetailsSelectors";
-import { fetchProjectDetails } from "../store/slices/projectDetailsSlice";
+import { fetchProject } from "../store/slices/projectDetailsSlice";
 import ChatCard from "../components/chat-card/ChatCard"
 import { selectMessages } from "../store/selectors/chatSelectors";
 import { fetchHistoryMessages } from "../store/slices/chatSlice";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@ui/tabs";
+import { ProjectSettings } from "@components/project-settings/ProjectSettings";
 
 export function ProjectDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -25,7 +26,7 @@ export function ProjectDetailPage() {
 
   useEffect(() => {
     if (id) {
-      dispatch(fetchProjectDetails(Number(id)));
+      dispatch(fetchProject(id));
       dispatch(fetchHistoryMessages(id));
     }
   }, [dispatch, id]);
@@ -42,11 +43,6 @@ export function ProjectDetailPage() {
       </div>
     );
   }
-
-
-  const handleDeploy = () => {
-    alert("🚀 Деплой запущен! Ваш сайт будет доступен через несколько минут.");
-  };
 
   return (
     <div className="flex-1 overflow-auto bg-background">
@@ -129,7 +125,7 @@ export function ProjectDetailPage() {
           </TabsContent>
 
           <TabsContent value="settings">
-            <Card className="p-8 border border-border">
+            {/* <Card className="p-8 border border-border">
               <h3 className="text-lg mb-6 text-foreground">Настройки проекта</h3>
               <div className="space-y-6">
                 <div>
@@ -158,7 +154,8 @@ export function ProjectDetailPage() {
                   <Button variant="destructive">Удалить проект</Button>
                 </div>
               </div>
-            </Card>
+            </Card> */}
+            <ProjectSettings projectId={project.projectInfo.projectId} name={project.projectInfo.name} description={project.projectInfo.description} />
           </TabsContent>
         </Tabs>
       </div>

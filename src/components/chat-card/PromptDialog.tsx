@@ -96,7 +96,7 @@ export function PromptDialog({ promptProp, type }: {
                 if (error) validatePrompt(e.target.value);
               }}
               placeholder="Опишите проект..."
-              className="min-h-48 font-mono text-sm"
+              className="h-[60vh] font-mono text-sm"
               id="prompt"
             />
             {error && (

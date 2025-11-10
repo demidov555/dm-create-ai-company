@@ -13,8 +13,10 @@
     "strict": false,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"],
-      "@ui/*": ["src/ui/*"]
+      "@ui/*": ["src/ui/*"],
+      "@services/*": ["src/services/*"],
+      "@store/*": ["src/store/*"],
+      "@components/*": ["src/components/*"]
     }
   },
   "include": ["src", "index.html"],

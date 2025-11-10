@@ -128,7 +128,7 @@ export function ProjectsPage() {
                     <Folder className="h-6 w-6 text-primary" />
                   </div>
                   <DropdownMenu>
-                    <DropdownMenuTrigger asChild onClick={(e: MouseEvent) => e.stopPropagation()}>
+                    <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
                       <button
                         className="h-8 w-8 rounded-md inline-flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-accent hover:text-accent-foreground"
                       >
@@ -136,12 +136,12 @@ export function ProjectsPage() {
                       </button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={(e: MouseEvent) => e.stopPropagation()}>
+                      <DropdownMenuItem onClick={(e) => e.stopPropagation()}>
                         <Edit className="h-4 w-4 mr-2" />
                         Редактировать
                       </DropdownMenuItem>
                       <DropdownMenuItem
-                        onClick={(e: MouseEvent) => {
+                        onClick={(e) => {
                           e.stopPropagation();
                           handleDeleteProject(project.projectId);
                         }}

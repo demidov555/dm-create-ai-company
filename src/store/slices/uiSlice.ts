@@ -13,12 +13,7 @@ interface UIState {
 }
 
 const initialState: UIState = {
-  dialogs: {
-    // Пример: можно инициализировать нужные
-    // createProject: false,
-    // editTask: false,
-    // settings: false,
-  },
+  dialogs: {},
   sidebarCollapsed: false,
   theme: "light",
   notifications: [],
@@ -86,7 +81,7 @@ export const {
   clearNotifications,
 } = uiSlice.actions;
 
-// === СЕЛЕКТОРЫ ===
+
 export const selectDialogOpen = (dialogId: string) =>
   createSelector(
     (state: RootState) => state.ui.dialogs,

@@ -46,7 +46,7 @@ const DialogContent = React.forwardRef<
       className={cn(
         "bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
         "fixed top-[50%] left-[50%] z-50 w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2",
-        "rounded-lg border shadow-lg duration-200 sm:max-w-lg",
+        "rounded-lg border-border border shadow-lg duration-200 sm:max-w-lg",
         "flex flex-col max-h-[85vh] overflow-hidden",
         className,
       )}
@@ -73,7 +73,7 @@ function DialogHeader({ className, onClose, ...props }: React.ComponentProps<"di
       </div>
       <DialogPrimitive.Close
         onClick={onClose}
-        className="cursor-pointer ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground rounded-xs opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4"
+        className="cursor-pointer text-foreground ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground rounded-xs opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4"
       >
         <XIcon />
         <span className="sr-only">Закрыть</span>
@@ -99,7 +99,7 @@ function DialogBody({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="dialog-body"
-      className={cn("flex-1 overflow-y-auto px-6 py-4", className)}
+      className={cn("flex-1 overflow-y-auto px-6 py-4 text-foreground", className)}
       {...props}
     />
   );
@@ -109,7 +109,7 @@ function DialogTitle({ className, ...props }: React.ComponentProps<typeof Dialog
   return (
     <DialogPrimitive.Title
       data-slot="dialog-title"
-      className={cn("text-lg leading-none font-semibold", className)}
+      className={cn("text-lg leading-none font-semibold text-foreground", className)}
       {...props}
     />
   );
@@ -119,7 +119,7 @@ function DialogDescription({ className, ...props }: React.ComponentProps<typeof 
   return (
     <DialogPrimitive.Description
       data-slot="dialog-description"
-      className={cn("text-muted-foreground text-sm", className)}
+      className={cn("text-muted-foreground text-sm text-foreground", className)}
       {...props}
     />
   );

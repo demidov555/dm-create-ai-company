@@ -9,8 +9,10 @@ export default defineConfig({
   resolve: {
     extensions: ['.js', '.jsx', '.ts', '.tsx', '.json'],
     alias: {
-      '@': path.resolve(__dirname, './src'),
       '@ui': path.resolve(__dirname, './src/ui'),
+      '@services': path.resolve(__dirname, './src/services'),
+      '@store': path.resolve(__dirname, './src/store'),
+      '@components': path.resolve(__dirname, './src/components'),
     },
   },
   build: {
