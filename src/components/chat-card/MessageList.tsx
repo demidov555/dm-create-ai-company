@@ -26,50 +26,41 @@ export const MessageList = forwardRef<HTMLDivElement, MessageListProps>(
       dispatch(openDialog(type));
     };
 
-    const lastAgentMessage = [...messages].reverse().find((m) => m.role === "agent");
+    const lastAgent = [...messages].reverse().find((m) => m.role === "agent");
 
     return (
-      <div
-        ref={ref}
-        className={cn(
-          "flex flex-col gap-4",
-          className
-        )}
-      >
-        {/* === Сообщения === */}
+      <div ref={ref} className={cn("flex flex-col gap-4", className)}>
         {messages.length > 0 ? (
-          messages.map((message, i) => {
-            const isAgent = message.role === "agent";
+          messages.map((msg, i) => {
+            const isAgent = msg.role === "agent";
             const isLastAgent =
-              isAgent &&
-              lastAgentMessage &&
-              message.messageId === lastAgentMessage.messageId;
+              isAgent && lastAgent?.messageId === msg.messageId;
 
             return (
               <div
                 key={i}
-                data-role={message.role}
+                data-role={msg.role}
                 className={cn(
-                  "flex gap-3 transition-all duration-200",
-                  message.role === "user" ? "flex-row-reverse" : ""
+                  "flex gap-3 [overflow-anchor:none]",
+                  msg.role === "user" ? "flex-row-reverse" : ""
                 )}
               >
                 <div
                   className={cn(
                     "flex-1 pr-3",
-                    message.role === "user" && "text-right"
+                    msg.role === "user" && "text-right"
                   )}
                 >
                   <p
                     className={cn(
                       "text-left break-words text-sm text-foreground/90 rounded-lg p-3 inline-block max-w-[80%] whitespace-pre-wrap",
-                      message.role === "user" ? "bg-secondary/50" : ""
+                      msg.role === "user" ? "bg-secondary/50" : ""
                     )}
                   >
                     {isAgent && isLastAgent ? (
-                      <AnimatedMessage text={message.message} />
+                      <AnimatedMessage text={msg.message} />
                     ) : (
-                      message.message
+                      msg.message
                     )}
                   </p>
                 </div>
@@ -77,11 +68,8 @@ export const MessageList = forwardRef<HTMLDivElement, MessageListProps>(
             );
           })
         ) : (
-          /* === Пустой чат === */
           <div className="flex flex-col items-center justify-center gap-6 text-sm mt-10">
-            <span className="text-foreground">
-              Начните с описания задачи продукт менеджеру
-            </span>
+            <span className="text-foreground">Начните с описания задачи</span>
             <div className="flex gap-4">
               <Button
                 variant="secondary"
@@ -111,7 +99,10 @@ export const MessageList = forwardRef<HTMLDivElement, MessageListProps>(
           </div>
         )}
 
-        {/* === Диалоги промптов === */}
+        {/* SCROLL ANCHOR — критично нужен при SSE */}
+        <div id="scroll-anchor" className="[overflow-anchor:auto] h-[1px]"></div>
+
+        {/* Prompt dialogs */}
         <PromptDialog
           promptProp={DETAILED_PROMPT_TEMPLATE}
           type="detaildPrompt"

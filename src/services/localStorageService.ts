@@ -13,7 +13,11 @@ export class LocalStorageService {
   setItem(key: string, value: any): void {
     if (typeof window === "undefined") return;
     try {
-      localStorage.setItem(key, value);
+      if (typeof value === 'object') {
+        localStorage.setItem(key, JSON.stringify(value))
+      } else {
+        localStorage.setItem(key, value);
+      }
     } catch (e) {
       console.warn("localStorage set error:", e);
     }

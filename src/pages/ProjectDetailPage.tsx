@@ -45,7 +45,7 @@ export function ProjectDetailPage() {
   }
 
   return (
-    <div className="flex-1 overflow-auto bg-background">
+    <div className="flex-1 bg-background">
       <div className="max-w-5xl min-w-[660px] mx-auto p-3">
 
         <Tabs defaultValue="overview" className="w-full">

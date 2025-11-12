@@ -3,14 +3,13 @@ import { TokenResponse } from "../store/slices/authSlice";
 import { localStorageService } from "./localStorageService";
 
 class AuthService {
-  private readonly API_URL = VITE_API_URL
   private readonly TOKEN_KEY = "access_token";
   private readonly PHONE_KEY = "phone";
   private readonly UID_KEY = "uid";
   private readonly AUTH_STATE_KEY = "auth_state";
 
   async loginWithFirebase(idToken: string): Promise<TokenResponse> {
-    const response = await fetch(`${this.API_URL}/api/auth/login`, {
+    const response = await fetch(`${VITE_API_URL}/api/auth/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

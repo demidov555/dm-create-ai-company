@@ -7,7 +7,7 @@ export const authMiddleware: Middleware = (storeAPI) => (next) => (action: any) 
   const result = next(action);
 
   if (action.type?.startsWith("auth/")) {
-    const state = storeAPI.getState() as any;
+    const state = storeAPI.getState();
     const authState = {
       isAuthenticated: state.auth?.isAuthenticated,
       phoneNumber: state.auth?.phoneNumber,
