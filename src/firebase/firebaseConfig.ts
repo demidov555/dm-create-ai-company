@@ -5,7 +5,6 @@ import { firebaseConfig } from "../../configs/firebaseConfig";
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 
-// reCAPTCHA
 export const createRecaptchaVerifier = (): RecaptchaVerifier => {
   return new RecaptchaVerifier(
     auth,
@@ -17,5 +16,4 @@ export const createRecaptchaVerifier = (): RecaptchaVerifier => {
   );
 };
 
-// Для хранения результата
 export let confirmationResult: ConfirmationResult | null = null;

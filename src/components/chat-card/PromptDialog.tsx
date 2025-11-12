@@ -1,23 +1,22 @@
 import { useState, useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import { useForm } from "react-hook-form";
 
 import { Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogBody } from "@ui/dialog";
 import { Button } from "@ui/button";
 import { Textarea } from "@ui/textarea";
 import { selectDialogOpen, closeDialog } from "../../store/slices/uiSlice";
-import { notificationService } from "../../services/notification";
-import { addMessage } from "../../store/slices/chatSlice";
+import { addMessage, addMessages, sendMessage } from "../../store/slices/chatSlice";
+import { useAppDispatch } from "@store/hooks";
 
 export function PromptDialog({ promptProp, type }: {
   promptProp: string; type: string
 }) {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const open = useSelector(selectDialogOpen(type));
 
   const [prompt, setPrompt] = useState(promptProp);
   const [error, setError] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {
     register,
@@ -54,29 +53,9 @@ export function PromptDialog({ promptProp, type }: {
   const onSubmit = async () => {
     if (!validatePrompt(prompt)) return;
 
-    setIsSubmitting(true);
-
-    try {
-      notificationService.info("AI анализирует ваш запрос...", {
-        duration: 3000,
-      });
-
-      // Имитация отправки
-      await new Promise((r) => setTimeout(r, 2000));
-
-      dispatch(closeDialog(type));
-      dispatch(addMessage({ projectId: 1, userId: 101, role: "user", message: `Промпт получен: ${prompt}`, isLoading: true }));
-
-      notificationService.success("Промпт успешно отправлен!", {
-        description: "AI приступил к работе над вашим проектом.",
-      });
-    } catch (error) {
-      notificationService.error("Не удалось создать проект", {
-        description: "Попробуйте позже",
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
+    dispatch(addMessage({ projectId: '1', userId: 101, role: "user", message: `Промпт получен: ${prompt}` }));
+    dispatch(sendMessage({ projectId: '1', userId: 101, role: "user", message: `Промпт получен: ${prompt}`}));
+    dispatch(closeDialog(type));
   };
 
   return (
@@ -113,8 +92,8 @@ export function PromptDialog({ promptProp, type }: {
           >
             Отмена
           </Button>
-          <Button onClick={handleSubmit(onSubmit)} disabled={isSubmitting || !!error}>
-            {isSubmitting ? "Создаём..." : "Создать проект"}
+          <Button onClick={handleSubmit(onSubmit)}>
+            Создать проект
           </Button>
         </DialogFooter>
       </DialogContent>

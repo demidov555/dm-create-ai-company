@@ -112,7 +112,7 @@ export function ProjectDetailPage() {
           </TabsContent>
 
           <TabsContent value="tasks">
-            <ChatCard messages={messages} projectId="1" role="user" userId={101} />
+            <ChatCard projectId={project.projectInfo.projectId} userId={101} />
           </TabsContent>
 
           <TabsContent value="team">

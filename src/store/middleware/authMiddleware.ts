@@ -14,7 +14,7 @@ export const authMiddleware: Middleware = (storeAPI) => (next) => (action: any) 
     };
 
     try {
-      localStorageService.setItem(AUTH_STORAGE_KEY, JSON.stringify(authState));
+      localStorageService.setItem(AUTH_STORAGE_KEY, authState);
     } catch (error) {
       console.error("Failed to save auth state:", error);
     }
@@ -25,10 +25,10 @@ export const authMiddleware: Middleware = (storeAPI) => (next) => (action: any) 
 
 export const loadAuthState = () => {
   try {
-    const serializedState = localStorageService.getItem<string>(AUTH_STORAGE_KEY);
+    const serializedState = localStorageService.getItem(AUTH_STORAGE_KEY);
     if (serializedState === null) return undefined;
 
-    return serializedState;
+    return JSON.parse(serializedState);
   } catch (error) {
     console.error("Failed to load auth state:", error);
     return undefined;

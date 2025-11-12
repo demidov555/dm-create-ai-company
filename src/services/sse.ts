@@ -25,7 +25,6 @@ class SSEService {
     };
 
     this.eventSource.addEventListener(event, handler);
-    // @ts-ignore
     this.listeners.set(event, handler);
   }
 

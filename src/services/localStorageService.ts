@@ -1,19 +1,19 @@
 export class LocalStorageService {
-  getItem<T>(key: string): T {
+  getItem(key: string): string {
     if (typeof window === "undefined") return;
 
     try {
       const item = localStorage.getItem(key);
-      return item && JSON.parse(item)
+      return item
     } catch (e) {
       console.warn("localStorage get error:", e);
     }
   };
 
-  setItem<T>(key: string, value: T): void {
+  setItem(key: string, value: any): void {
     if (typeof window === "undefined") return;
     try {
-      localStorage.setItem(key, JSON.stringify(value));
+      localStorage.setItem(key, value);
     } catch (e) {
       console.warn("localStorage set error:", e);
     }

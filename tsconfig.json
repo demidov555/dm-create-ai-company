@@ -16,7 +16,8 @@
       "@ui/*": ["src/ui/*"],
       "@services/*": ["src/services/*"],
       "@store/*": ["src/store/*"],
-      "@components/*": ["src/components/*"]
+      "@components/*": ["src/components/*"],
+      "@configs/*": ["./configs/*"]
     }
   },
   "include": ["src", "index.html"],

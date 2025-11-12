@@ -1,87 +1,132 @@
-import { useEffect, useRef } from "react";
+import { forwardRef } from "react";
 import { Message } from "../../store/slices/chatSlice";
-import { ScrollArea } from "@ui/scroll-area";
-import { Loader2, SearchCode, Terminal, User } from "lucide-react";
+import { Terminal, User, SearchCode } from "lucide-react";
 import { Button } from "@ui/button";
 import { PromptDialog } from "./PromptDialog";
 import { useDispatch } from "react-redux";
 import { openDialog } from "../../store/slices/uiSlice";
-import { DETAILED_PROMPT_TEMPLATE, READY_LANDING_PROMPT, USER_FRIENDLY_PROMPT_TEMPLATE } from "./prompts";
+import {
+  DETAILED_PROMPT_TEMPLATE,
+  READY_LANDING_PROMPT,
+  USER_FRIENDLY_PROMPT_TEMPLATE,
+} from "./prompts";
+import { cn } from "@ui/utils";
+import { AnimatedMessage } from "./AnimatedMessage";
 
 export interface MessageListProps {
   messages: Message[];
-  isLoading: boolean;
+  className?: string;
 }
 
-export function MessageList({ messages, isLoading }: MessageListProps) {
-  const dispatch = useDispatch();
-  const lastMsgRef = useRef<HTMLDivElement | null>(null);
-  const prevLenRef = useRef<number>(messages.length);
+export const MessageList = forwardRef<HTMLDivElement, MessageListProps>(
+  function MessageList({ messages, className }, ref) {
+    const dispatch = useDispatch();
 
-  useEffect(() => {
-    requestAnimationFrame(() => lastMsgRef.current?.scrollIntoView({ behavior: "smooth", block: "end" }));
+    const openPromptDialog = (type: string) => {
+      dispatch(openDialog(type));
+    };
 
-    prevLenRef.current = messages.length;
-  }, [messages]);
+    const lastAgentMessage = [...messages].reverse().find((m) => m.role === "agent");
 
-  const openPromptDialog = (typeDialog: string) => {
-    dispatch(openDialog(typeDialog));
-  }
+    return (
+      <div
+        ref={ref}
+        className={cn(
+          "flex flex-col gap-4",
+          className
+        )}
+      >
+        {/* === Сообщения === */}
+        {messages.length > 0 ? (
+          messages.map((message, i) => {
+            const isAgent = message.role === "agent";
+            const isLastAgent =
+              isAgent &&
+              lastAgentMessage &&
+              message.messageId === lastAgentMessage.messageId;
 
-  return (
-    <>
-      <ScrollArea className="h-[80vh]">
-        <div className={!messages.length ? "flex justify-center items-center space-y-4 h-[80vh]" : "space-y-4 h-[80vh]"}>
-          {messages.map((message, i) => {
-            const isLast = i === messages.length - 1;
             return (
               <div
                 key={i}
-                ref={isLast ? lastMsgRef : undefined}
-                className={`flex gap-3 ${message.role === "user" ? "flex-row-reverse" : ""}`}
+                data-role={message.role}
+                className={cn(
+                  "flex gap-3 transition-all duration-200",
+                  message.role === "user" ? "flex-row-reverse" : ""
+                )}
               >
-                <div className={`flex-1 pr-3 ${message.role === "user" ? "text-right" : ""}`}>
+                <div
+                  className={cn(
+                    "flex-1 pr-3",
+                    message.role === "user" && "text-right"
+                  )}
+                >
                   <p
-                    className={`text-left break-all text-sm text-foreground/90 rounded-lg p-3 inline-block max-w-[80%] whitespace-break-spaces ${message.role === "user" ? "bg-secondary/50" : ""
-                      }`}
+                    className={cn(
+                      "text-left break-words text-sm text-foreground/90 rounded-lg p-3 inline-block max-w-[80%] whitespace-pre-wrap",
+                      message.role === "user" ? "bg-secondary/50" : ""
+                    )}
                   >
-                    {message.message}
+                    {isAgent && isLastAgent ? (
+                      <AnimatedMessage text={message.message} />
+                    ) : (
+                      message.message
+                    )}
                   </p>
                 </div>
               </div>
             );
-          })}
-
-          {!messages.length && (
-            <div className="flex flex-col items-center justify-center gap-6 text-sm">
-              <span className="text-foreground">
-                Начните с описания задачи продукт менеджеру
-              </span>
-
-              <div className="flex gap-4">
-                <Button variant="secondary" size="lg" className="" onClick={() => openPromptDialog('detaildPrompt')}>
-                  <Terminal className="h-4 w-4 mr-2" />
-                  Детальный промпт
-                </Button>
-                <Button variant="secondary" size="lg" className="" onClick={() => openPromptDialog('userFrendlyPrompt')}>
-                  <SearchCode className="h-4 w-4 mr-2" />
-                  Простой промпт
-                </Button>
-                <Button variant="secondary" size="lg" className="" onClick={() => openPromptDialog('readyPrompt')}>
-                  <User className="h-4 w-4 mr-2" />
-                  Готовый промпт
-                </Button>
-              </div>
+          })
+        ) : (
+          /* === Пустой чат === */
+          <div className="flex flex-col items-center justify-center gap-6 text-sm mt-10">
+            <span className="text-foreground">
+              Начните с описания задачи продукт менеджеру
+            </span>
+            <div className="flex gap-4">
+              <Button
+                variant="secondary"
+                size="lg"
+                onClick={() => openPromptDialog("detaildPrompt")}
+              >
+                <Terminal className="h-4 w-4 mr-2" />
+                Детальный промпт
+              </Button>
+              <Button
+                variant="secondary"
+                size="lg"
+                onClick={() => openPromptDialog("userFrendlyPrompt")}
+              >
+                <SearchCode className="h-4 w-4 mr-2" />
+                Простой промпт
+              </Button>
+              <Button
+                variant="secondary"
+                size="lg"
+                onClick={() => openPromptDialog("readyPrompt")}
+              >
+                <User className="h-4 w-4 mr-2" />
+                Готовый промпт
+              </Button>
             </div>
-          )}
+          </div>
+        )}
 
-          {isLoading && (<Loader2 className="h-4 w-4 animate-spin text-blue-600" />)}
-        </div>
-      </ScrollArea>
+        {/* === Диалоги промптов === */}
+        <PromptDialog
+          promptProp={DETAILED_PROMPT_TEMPLATE}
+          type="detaildPrompt"
+        />
+        <PromptDialog
+          promptProp={USER_FRIENDLY_PROMPT_TEMPLATE}
+          type="userFrendlyPrompt"
+        />
+        <PromptDialog
+          promptProp={READY_LANDING_PROMPT}
+          type="readyPrompt"
+        />
+      </div>
+    );
+  }
+);
 
-      <PromptDialog promptProp={DETAILED_PROMPT_TEMPLATE} type="detaildPrompt" />
-      <PromptDialog promptProp={USER_FRIENDLY_PROMPT_TEMPLATE} type="userFrendlyPrompt" />
-      <PromptDialog promptProp={READY_LANDING_PROMPT} type="readyPrompt" />
-    </>
-  );
-}
+export default MessageList;
