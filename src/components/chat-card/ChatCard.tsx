@@ -1,10 +1,10 @@
 import { MessageList } from "./MessageList";
 import { TaskForm } from "./TaskForm";
-import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { selectIsLoading, selectMessages } from "@store/selectors/chatSelectors";
-import { addMessage, Message, sendMessage } from "../../store/slices/chatSlice";
+import { selectIsLoading, selectIsTyping, selectMessages } from "@store/selectors/chatSelectors";
+import { useAppDispatch, useAppSelector } from "@store/hooks";
+import { cancelAiTyping, Message, sendUserMessage } from "@store/slices/chatSlice";
 import { useChatSSE } from "./hooks/useChatSSE";
-import TypingIndicator from "./TypingIndicator";
+import { LoadingIndicator } from "./LoadingIndicator";
 import { useChatScroll } from "./hooks/useChatScroll";
 
 type ChatCardProps = {
@@ -12,13 +12,13 @@ type ChatCardProps = {
   userId: number;
 };
 
-export default function ChatCard({ projectId, userId }: ChatCardProps) {
+export function ChatCard({ projectId, userId }: ChatCardProps) {
   const dispatch = useAppDispatch();
   const messages = useAppSelector(selectMessages);
   const isLoading = useAppSelector(selectIsLoading);
+  const isTyping = useAppSelector(selectIsTyping);
 
-  useChatSSE({ projectId, userId });
-
+  const { restart } = useChatSSE({ projectId, userId });
   const { scrollRef } = useChatScroll(messages);
 
   const handleSendMessage = (text: string) => {
@@ -32,9 +32,20 @@ export default function ChatCard({ projectId, userId }: ChatCardProps) {
       message: value,
     };
 
-    dispatch(addMessage(userMsg));
-    dispatch(sendMessage(userMsg));
+    // setTimeout(() => dispatch(sendUserMessage(userMsg)), 200)
+    dispatch(sendUserMessage(userMsg))
   };
+
+  const handleCancelAiTyping = () => {
+    dispatch(cancelAiTyping(projectId));
+    restart();
+  }
+
+  const handleCancelAiTypingWhileUserSendMessage = (userMessage: string) => {
+    dispatch(cancelAiTyping(projectId));
+    handleSendMessage(userMessage)
+    restart();
+  }
 
   return (
     <div
@@ -44,23 +55,19 @@ export default function ChatCard({ projectId, userId }: ChatCardProps) {
         gridTemplateRows: "1fr auto",
       }}
     >
-
       <div
         ref={scrollRef}
         className="overflow-y-auto"
       >
         <MessageList messages={messages} />
-
-        {isLoading && (
-          <div className="px-4 py-2 flex">
-            <TypingIndicator />
-          </div>
-        )}
+        {isLoading && (<div className="px-4 py-2 flex"><LoadingIndicator /></div>)}
       </div>
-
-
-      <TaskForm onSendMessage={handleSendMessage} />
+      <TaskForm
+        isTyping={isTyping}
+        sendMessage={handleSendMessage}
+        cancelAiTyping={handleCancelAiTyping}
+        cancelAiTypingWhileUserSendMessage={handleCancelAiTypingWhileUserSendMessage}
+      />
     </div>
-
   );
 }

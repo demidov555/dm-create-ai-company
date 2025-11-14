@@ -8,7 +8,7 @@ import { Card } from "@ui/card";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { selectProjectDetails } from "../store/selectors/projectDetailsSelectors";
 import { fetchProject } from "../store/slices/projectDetailsSlice";
-import ChatCard from "../components/chat-card/ChatCard"
+import { ChatCard } from "../components/chat-card/ChatCard"
 import { selectMessages } from "../store/selectors/chatSelectors";
 import { fetchHistoryMessages } from "../store/slices/chatSlice";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@ui/tabs";

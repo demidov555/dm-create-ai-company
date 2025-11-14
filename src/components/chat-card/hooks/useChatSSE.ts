@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useCallback } from "react";
 import { useAppDispatch } from "@store/hooks";
 import {
   startStream,
@@ -7,36 +7,27 @@ import {
 } from "@store/slices/chatSlice";
 import { sseService } from "@services/sse";
 import { VITE_API_URL } from "@configs/env";
+import { store } from "@store/store";
 
-/**
- * Управляет подключением SSE для конкретного проекта.
- * Поддерживает единичное соединение и стриминг сообщений от агента.
- */
-export function useChatSSE({ projectId, userId }: any) {
+export function useChatSSE({ projectId, userId }) {
   const dispatch = useAppDispatch();
-  const bufferMap = useRef<Map<string, string>>(new Map());
 
-  useEffect(() => {
-    const url = `${VITE_API_URL}/chat_stream/${projectId}`;
-    sseService.connect(url);
-
-    /** Обработка входящих сообщений */
-    sseService.on("message", (data: any) => {
+  /** ===========================
+   *  SSE EVENT HANDLERS
+   * ========================== */
+  const onMessage = useCallback(
+    (data: any) => {
       if (data.role !== "agent") return;
+      const messageId = data.message_id;
+      if (!messageId) return;
 
-      const id = data.message_id;
-      const chunk = data.message || "";
-      if (!id) return;
+      const chunk = data.message ?? "";
+      const map = store.getState().chat.messageIndexMap;
 
-      const prev = bufferMap.current.get(id) || "";
-      const next = prev + chunk;
-      bufferMap.current.set(id, next);
-
-      // Первый чанк нового ответа
-      if (!prev) {
+      if (map[messageId] === undefined) {
         dispatch(
           startStream({
-            messageId: id,
+            messageId,
             projectId,
             userId,
             role: "agent",
@@ -44,20 +35,71 @@ export function useChatSSE({ projectId, userId }: any) {
           })
         );
       } else {
-        dispatch(appendToCurrentStream(chunk));
+        dispatch(appendToCurrentStream({ chunk, messageId }));
       }
-    });
+    },
+    [dispatch, projectId, userId]
+  );
 
-    /** Конец потока */
-    sseService.on("end", (data: any) => {
-      dispatch(endStream());
-      bufferMap.current.delete(data?.message_id);
-    });
+  const onEnd = useCallback(() => dispatch(endStream()), [dispatch]);
 
-    /** Очистка при размонтировании */
+  const onCancel = useCallback(() => {
+    dispatch(endStream());
+    stop();
+  }, [dispatch]);
+
+  const onError = useCallback(() => {
+    stop();
+  }, [dispatch]);
+
+  /** ===========================
+   *  START — навешиваем listeners
+   * ========================== */
+  const start = useCallback(() => {
+    console.log("▶️ Subscribing SSE listeners");
+
+    sseService.off(); // снять старые, чтобы не было дублей
+
+    sseService.on("message", onMessage);
+    sseService.on("end", onEnd);
+    sseService.on("cancel", onCancel);
+    sseService.on("error", onError);
+  }, [onMessage, onEnd, onCancel, onError]);
+
+  /** ===========================
+   *  STOP — снять listeners, но НЕ закрывать SSE
+   * ========================== */
+  const stop = useCallback(() => {
+    console.log("⏹ Stopping SSE (off listeners only)");
+    sseService.off();
+    dispatch(endStream());
+  }, []);
+
+  /** ===========================
+   *  RESTART — переподписка
+   * ========================== */
+  const restart = useCallback(() => {
+    console.log("♻️ Restart SSE listeners");
+    stop();
+    start();
+  }, [stop, start]);
+
+  /** ===========================
+   * LIFECYCLE
+   * ========================== */
+  useEffect(() => {
+    // 1) создаём EventSource один раз
+    const url = `${VITE_API_URL}/chat_stream/${projectId}`;
+    sseService.connect(url);
+
+    // 2) подписываемся
+    start();
+
     return () => {
+      // 3) только при размонтировании закрывать
       sseService.close();
-      bufferMap.current.clear();
     };
-  }, [dispatch, projectId, userId]);
+  }, [projectId, start]);
+
+  return { start, stop, restart };
 }

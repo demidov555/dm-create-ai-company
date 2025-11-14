@@ -1,8 +1,15 @@
 import { useState, useRef, useLayoutEffect } from "react";
-import { ArrowUp } from "lucide-react";
+import { ArrowUp, Pause } from "lucide-react";
 import { Button } from "@ui/button";
 
-export function TaskForm({ onSendMessage }: { onSendMessage: (msg: string) => void }) {
+interface TaskFormProps {
+  isTyping: boolean;
+  sendMessage: (msg: string) => void;
+  cancelAiTyping: () => void;
+  cancelAiTypingWhileUserSendMessage: (userMessage: string) => void;
+}
+
+export function TaskForm({ isTyping, sendMessage, cancelAiTyping, cancelAiTypingWhileUserSendMessage }: TaskFormProps) {
   const [message, setMessage] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -25,8 +32,14 @@ export function TaskForm({ onSendMessage }: { onSendMessage: (msg: string) => vo
 
   const handleSubmit = () => {
     if (message.trim()) {
-      onSendMessage(message);
-      setMessage("");
+      if (isTyping) {
+        cancelAiTypingWhileUserSendMessage(message);
+        setMessage("");
+
+      } else {
+        sendMessage(message)
+        setMessage("");
+      }
 
       if (textareaRef.current) {
         textareaRef.current.style.height = "auto";
@@ -35,13 +48,7 @@ export function TaskForm({ onSendMessage }: { onSendMessage: (msg: string) => vo
   };
 
   return (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        handleSubmit();
-      }}
-      className="relative p-2"
-    >
+    <div className="relative p-2">
       <textarea
         ref={textareaRef}
         value={message}
@@ -60,13 +67,28 @@ export function TaskForm({ onSendMessage }: { onSendMessage: (msg: string) => vo
         autoFocus
       />
 
-      <Button
-        type="submit"
+      {isTyping && <Button
+        onClick={(e) => {
+          e.preventDefault();
+          cancelAiTyping();
+        }}
+        className="absolute bottom-5 right-4 h-9 w-9 rounded-full"
+      >
+        <Pause className="h-4 w-4" />
+      </Button>
+      }
+
+      {!isTyping && <Button
+        onClick={(e) => {
+          e.preventDefault();
+          handleSubmit();
+        }}
         disabled={isDisabled}
         className="absolute bottom-5 right-4 h-9 w-9 rounded-full"
       >
         <ArrowUp className="h-4 w-4" />
       </Button>
-    </form>
+      }
+    </div>
   );
 }

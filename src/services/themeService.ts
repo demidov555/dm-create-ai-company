@@ -15,7 +15,7 @@ export class ThemeService {
   }
 
   public get(): Theme {
-    return localStorageService.getItem(THEME_KEY);
+    return localStorageService.getItem(THEME_KEY) as Theme;
   }
 
   public set(theme: Theme): void {

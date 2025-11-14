@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogB
 import { Button } from "@ui/button";
 import { Textarea } from "@ui/textarea";
 import { selectDialogOpen, closeDialog } from "../../store/slices/uiSlice";
-import { addMessage, addMessages, sendMessage } from "../../store/slices/chatSlice";
+import { sendUserMessage } from "@store/slices/chatSlice";
 import { useAppDispatch } from "@store/hooks";
 
 export function PromptDialog({ promptProp, type }: {
@@ -53,8 +53,7 @@ export function PromptDialog({ promptProp, type }: {
   const onSubmit = async () => {
     if (!validatePrompt(prompt)) return;
 
-    dispatch(addMessage({ projectId: '1', userId: 101, role: "user", message: `Промпт получен: ${prompt}` }));
-    dispatch(sendMessage({ projectId: '1', userId: 101, role: "user", message: `Промпт получен: ${prompt}`}));
+    dispatch(sendUserMessage({ projectId: '1', userId: 101, role: "user", message: `Промпт получен: ${prompt}` }));
     dispatch(closeDialog(type));
   };
 

@@ -1,49 +1,10 @@
-/** Тестовые константы */
-// export const msgs = [
-//   {
-//     projectId: '1',
-//     message: "Привет, агент!",
-//     role: "user",
-//     userId: 101,
-//     isLoading: false,
-//   },
-//   {
-//     projectId: '1',
-//     message: "Привет! Какое приложение я могу собрать для тебя?",
-//     role: "agent",
-//     userId: 101,
-//     isLoading: false,
-//   },
-//   {
-//     projectId: '1',
-//     message: "Я хочу веб-приложение для продвижения товаров и услуг",
-//     role: "user",
-//     userId: 101,
-//     isLoading: false,
-//   },
-//   {
-//     projectId: '1',
-//     message: "Отлично! Могу я уточнить ТЗ?",
-//     role: "agent",
-//     userId: 101,
-//     isLoading: false,
-//   },
-//   {
-//     projectId: '1',
-//     message: "Приложение должно быть на Angular и Node.js. Сделай минимальный MVP.",
-//     role: "user",
-//     userId: 101,
-//     isLoading: false,
-//   }
-// ] as Message[];
-
+import { VITE_API_URL } from "@configs/env";
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { api } from "@services/api";
-import { CHAT_SSE_URL } from "@configs/env";
+import { debouncedSendMessage } from "@store/utils/debouncedSender";
 
-/** Тип сообщения */
 export interface Message {
-  messageId?: string; // идентификатор потока (message_id)
+  messageId?: string;
   projectId: string;
   userId: number;
   role: "user" | "agent" | "system";
@@ -51,83 +12,97 @@ export interface Message {
   timestamp?: string;
 }
 
-/** Состояние */
 type ChatState = {
   messages: Message[];
   isLoading: boolean;
   isTyping: boolean
-  currentStreamId?: string | null;
+  messageIndexMap: Record<string, number>;
+  currentStreamId: string;
 };
 
 const initialState: ChatState = {
   messages: [],
   isLoading: false,
   isTyping: false,
-  currentStreamId: null
+  messageIndexMap: {},
+  currentStreamId: null,
 };
 
-/** Slice */
 const chatSlice = createSlice({
   name: "chat",
   initialState,
   reducers: {
-    /** Добавляем сообщение в историю (user/system/финальное agent) */
     addMessage(state, action: PayloadAction<Message>) {
       state.messages.push(action.payload);
     },
-
-    /** Массовое добавление (например, при загрузке истории) */
     addMessages(state, action: PayloadAction<Message[]>) {
       state.messages.push(...action.payload);
     },
-
-    /** Начало нового стрима */
     startStream(state, action: PayloadAction<Message>) {
       const msg = action.payload;
       state.isTyping = true;
       state.isLoading = false;
+      const indexMessage = state.messages.length
       state.messages.push(msg);
-      state.currentStreamId = msg.messageId || null;
+      state.currentStreamId = msg.messageId;
+      state.messageIndexMap[msg.messageId] = indexMessage;
     },
+    appendToCurrentStream(state, action: PayloadAction<{ chunk: string; messageId: string }>) {
+      const chunk = action.payload.chunk;
+      const messageIndex = state.messageIndexMap[action.payload.messageId];
 
-    /** Обновляем последний активный стрим без поиска */
-    appendToCurrentStream(state, action: PayloadAction<string>) {
-      const chunk = action.payload;
-      const last = state.messages[state.messages.length - 1];
-      if (!last) return;
+      if (messageIndex === undefined) return;
 
-      // Просто добавляем чанк как есть
-      last.message += chunk;
+      state.messages[messageIndex].message += chunk;
     },
-
-    /** Завершение стрима */
     endStream(state) {
       state.isTyping = false;
+      state.isTyping = false;
+
+      const currentStreamId = state.currentStreamId;
+      const index = state.messageIndexMap[currentStreamId];
+
+      if (index === undefined) {
+        state.messageIndexMap = {};
+        state.currentStreamId = null;
+        return;
+      }
+
+      // Держим только текущий стрим чтобы не перегружать мапу
+      state.messageIndexMap = { [state.currentStreamId]: index };
       state.currentStreamId = null;
     },
   },
-
-  /** Внешние асинхронные экшены */
   extraReducers: (builder) => {
     builder
-      // === Отправка сообщения ===
-      .addCase(sendMessage.pending, (state) => {
+      .addCase(sendSSEMessage.pending, (state) => {
         state.isLoading = true;
       })
-      .addCase(sendMessage.fulfilled, (state) => {
-        // state.isLoading = false;
-      })
-      .addCase(sendMessage.rejected, (state) => {
+      .addCase(sendSSEMessage.rejected, (state) => {
         state.isLoading = false;
       })
 
-      // === Загрузка истории ===
+
+      .addCase(cancelAiTyping.fulfilled, (state) => {
+        state.isTyping = false;
+      })
+      .addCase(cancelAiTyping.rejected, (state) => {
+        state.isTyping = false;
+      })
+
       .addCase(fetchHistoryMessages.pending, (state) => {
         state.isLoading = true;
       })
       .addCase(fetchHistoryMessages.fulfilled, (state, action: PayloadAction<Message[]>) => {
         state.isLoading = false;
-        state.messages = action.payload;
+        state.currentStreamId = null;
+        state.messages.push(...action.payload);
+        state.messageIndexMap = {};
+        state.messages.forEach((m, index) => {
+          if (m.messageId) {
+            state.messageIndexMap[m.messageId] = index;
+          }
+        });
       })
       .addCase(fetchHistoryMessages.rejected, (state) => {
         state.isLoading = false;
@@ -136,13 +111,16 @@ const chatSlice = createSlice({
 });
 
 /** === Async actions === */
+export const sendUserMessage = (message: Message) => async (dispatch) => {
+  dispatch(addMessage(message));
+  debouncedSendMessage(message);
+};
 
-/** Отправка сообщения (user → backend) */
-export const sendMessage = createAsyncThunk<void, Message, { rejectValue: string }>(
+export const sendSSEMessage = createAsyncThunk<void, Message, { rejectValue: string }>(
   "chat/sendMessage",
   async (payload, { rejectWithValue }) => {
     try {
-      const response = await api.post(CHAT_SSE_URL, {
+      const response = await api.post(`${VITE_API_URL}/chat_message`, {
         project_id: Number(payload.projectId),
         user_id: payload.userId,
         role: payload.role,
@@ -159,7 +137,22 @@ export const sendMessage = createAsyncThunk<void, Message, { rejectValue: string
   }
 );
 
-/** Получение истории сообщений */
+export const cancelAiTyping = createAsyncThunk<void, string, { rejectValue: string }>(
+  "chat/cancelStream",
+  async (projectId, { rejectWithValue }) => {
+    try {
+      const response = await api.post(`${VITE_API_URL}/chat_cancel/${projectId}`);
+
+      if (!response.data) {
+        return rejectWithValue(`Ошибка ответа сервера: ${response.status}`);
+      }
+    } catch (err) {
+      console.error("[SSE] Ошибка при отмене SSE:", err);
+      return rejectWithValue("Ошибка при отмене SSE");
+    }
+  }
+);
+
 export const fetchHistoryMessages = createAsyncThunk<Message[], string, { rejectValue: string }>(
   "chat/fetchHistoryMessages",
   async (projectId, { rejectWithValue }) => {

@@ -17,8 +17,7 @@ class SSEService {
 
     const handler = (e: MessageEvent) => {
       try {
-        const data = JSON.parse(e.data);
-        cb(data);
+        cb(JSON.parse(e.data));
       } catch {
         cb(e.data);
       }
@@ -38,7 +37,6 @@ class SSEService {
         this.listeners.delete(event);
       }
     } else {
-      // убрать всех слушателей
       for (const [evt, handler] of this.listeners) {
         this.eventSource.removeEventListener(evt, handler);
       }
