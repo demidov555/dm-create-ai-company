@@ -6,12 +6,17 @@ import { Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogB
 import { Button } from "@ui/button";
 import { Textarea } from "@ui/textarea";
 import { selectDialogOpen, closeDialog } from "../../store/slices/uiSlice";
-import { sendUserMessage } from "@store/slices/chatSlice";
+import { addMessage, Message, sendSSEMessage } from "@store/slices/chatSlice";
 import { useAppDispatch } from "@store/hooks";
 
-export function PromptDialog({ promptProp, type }: {
-  promptProp: string; type: string
-}) {
+interface PromptDialogProps {
+  promptProp: string;
+  type: string;
+  projectId: string;
+  userId: number;
+}
+
+export function PromptDialog({ promptProp, type, projectId, userId }: PromptDialogProps) {
   const dispatch = useAppDispatch();
   const open = useSelector(selectDialogOpen(type));
 
@@ -21,8 +26,7 @@ export function PromptDialog({ promptProp, type }: {
   const {
     register,
     handleSubmit,
-    reset,
-    formState: { isDirty },
+    reset
   } = useForm({
     defaultValues: { prompt: promptProp },
   });
@@ -53,7 +57,10 @@ export function PromptDialog({ promptProp, type }: {
   const onSubmit = async () => {
     if (!validatePrompt(prompt)) return;
 
-    dispatch(sendUserMessage({ projectId: '1', userId: 101, role: "user", message: `Промпт получен: ${prompt}` }));
+    const message: Message = { projectId, userId, role: "user", message: `Промпт получен: ${prompt}` }
+
+    dispatch(addMessage(message));
+    dispatch(sendSSEMessage(message));
     dispatch(closeDialog(type));
   };
 

@@ -12,7 +12,10 @@ export function useChatScroll(messages: Message[]) {
 
     if (last.role === "user") {
       requestAnimationFrame(() => {
-        el.scrollTop = el.scrollHeight;
+        el.scrollTo({
+          top: el.clientHeight,
+          behavior: "smooth",
+        });
       });
     }
 

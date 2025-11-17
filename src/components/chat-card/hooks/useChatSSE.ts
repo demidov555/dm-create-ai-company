@@ -23,8 +23,9 @@ export function useChatSSE({ projectId, userId }) {
 
       const chunk = data.message ?? "";
       const map = store.getState().chat.messageIndexMap;
+      const isNewMessage = map[messageId] === undefined;
 
-      if (map[messageId] === undefined) {
+      if (isNewMessage) {
         dispatch(
           startStream({
             messageId,
@@ -57,8 +58,7 @@ export function useChatSSE({ projectId, userId }) {
    * ========================== */
   const start = useCallback(() => {
     console.log("▶️ Subscribing SSE listeners");
-
-    sseService.off(); // снять старые, чтобы не было дублей
+    sseService.off();
 
     sseService.on("message", onMessage);
     sseService.on("end", onEnd);
@@ -88,15 +88,12 @@ export function useChatSSE({ projectId, userId }) {
    * LIFECYCLE
    * ========================== */
   useEffect(() => {
-    // 1) создаём EventSource один раз
     const url = `${VITE_API_URL}/chat_stream/${projectId}`;
     sseService.connect(url);
 
-    // 2) подписываемся
     start();
 
     return () => {
-      // 3) только при размонтировании закрывать
       sseService.close();
     };
   }, [projectId, start]);

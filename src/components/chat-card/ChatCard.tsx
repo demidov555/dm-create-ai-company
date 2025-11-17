@@ -1,8 +1,8 @@
 import { MessageList } from "./MessageList";
 import { TaskForm } from "./TaskForm";
-import { selectIsLoading, selectIsTyping, selectMessages } from "@store/selectors/chatSelectors";
+import { selectIsLoadingMessage, selectIsLoadingMessages, selectIsTyping, selectMessages } from "@store/selectors/chatSelectors";
 import { useAppDispatch, useAppSelector } from "@store/hooks";
-import { cancelAiTyping, Message, sendUserMessage } from "@store/slices/chatSlice";
+import { cancelAiTyping, sendUserMessage } from "@store/slices/chatSlice";
 import { useChatSSE } from "./hooks/useChatSSE";
 import { LoadingIndicator } from "./LoadingIndicator";
 import { useChatScroll } from "./hooks/useChatScroll";
@@ -15,7 +15,8 @@ type ChatCardProps = {
 export function ChatCard({ projectId, userId }: ChatCardProps) {
   const dispatch = useAppDispatch();
   const messages = useAppSelector(selectMessages);
-  const isLoading = useAppSelector(selectIsLoading);
+  const isLoadingMessages = useAppSelector(selectIsLoadingMessages);
+  const isLoadingMessage = useAppSelector(selectIsLoadingMessage);
   const isTyping = useAppSelector(selectIsTyping);
 
   const { restart } = useChatSSE({ projectId, userId });
@@ -25,15 +26,12 @@ export function ChatCard({ projectId, userId }: ChatCardProps) {
     const value = text.trim();
     if (!value) return;
 
-    const userMsg: Message = {
+    dispatch(sendUserMessage({
       projectId,
       userId,
       role: "user",
       message: value,
-    };
-
-    // setTimeout(() => dispatch(sendUserMessage(userMsg)), 200)
-    dispatch(sendUserMessage(userMsg))
+    }))
   };
 
   const handleCancelAiTyping = () => {
@@ -59,8 +57,14 @@ export function ChatCard({ projectId, userId }: ChatCardProps) {
         ref={scrollRef}
         className="overflow-y-auto"
       >
-        <MessageList messages={messages} />
-        {isLoading && (<div className="px-4 py-2 flex"><LoadingIndicator /></div>)}
+        {isLoadingMessages ? (
+          <span>loading...</span>
+        ) : (
+          <>
+            <MessageList messages={messages} projectId={projectId} userId={userId} />
+            <div className="flex h-[26px]">{isLoadingMessage && <LoadingIndicator />}</div>
+          </>
+        )}
       </div>
       <TaskForm
         isTyping={isTyping}

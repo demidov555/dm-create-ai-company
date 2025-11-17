@@ -4,7 +4,6 @@ import { localStorageService } from "./localStorageService";
 
 export const api = axios.create({
 	baseURL: VITE_API_URL,
-	// you can enable credentials if backend requires cookies
 	// withCredentials: true,
 	headers: {
 		"Content-Type": "application/json",

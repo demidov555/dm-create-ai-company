@@ -12,7 +12,7 @@ import { Input } from "@ui/input";
 import { Label } from "@ui/label";
 import { Textarea } from "@ui/textarea";
 import { Button } from "@ui/button";
-import { Bot } from "lucide-react";
+import { Bot, Loader, Plus } from "lucide-react";
 import { Checkbox } from "@ui/checkbox";
 import { useAppDispatch } from "../store/hooks";
 import { addProject } from "../store/slices/projectsSlice";
@@ -29,7 +29,7 @@ const availableAgents = [
 ];
 const dialogName = "createProjectsDialog";
 
-export function CreateProjectDialog() {
+export function CreateProjectDialog({ isLoading }: { isLoading: boolean }) {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const open = useSelector(selectDialogOpen(dialogName));
@@ -71,7 +71,8 @@ export function CreateProjectDialog() {
   };
 
   const toggleAgent = (agentId: string) => {
-    if (agentId === "product-manager") return; // Required agent
+    if (agentId === "product-manager") return;
+
     setSelectedAgents((prev) =>
       prev.includes(agentId)
         ? prev.filter((id) => id !== agentId)
@@ -150,9 +151,10 @@ export function CreateProjectDialog() {
               </Button>
               <Button
                 type="submit"
-                disabled={!name.trim()}
+                disabled={!name.trim() || isLoading}
                 className="bg-primary hover:bg-primary/90 text-primary-foreground"
               >
+                {isLoading ? <Loader /> : <Plus />}
                 Создать проект
               </Button>
             </div>

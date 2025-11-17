@@ -10,7 +10,7 @@ import { selectProjectDetails } from "../store/selectors/projectDetailsSelectors
 import { fetchProject } from "../store/slices/projectDetailsSlice";
 import { ChatCard } from "../components/chat-card/ChatCard"
 import { selectMessages } from "../store/selectors/chatSelectors";
-import { fetchHistoryMessages } from "../store/slices/chatSlice";
+import { getHistoryMessages } from "../store/slices/chatSlice";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@ui/tabs";
 import { ProjectSettings } from "@components/project-settings/ProjectSettings";
 
@@ -27,7 +27,7 @@ export function ProjectDetailPage() {
   useEffect(() => {
     if (id) {
       dispatch(fetchProject(id));
-      dispatch(fetchHistoryMessages(id));
+      dispatch(getHistoryMessages(id));
     }
   }, [dispatch, id]);
 

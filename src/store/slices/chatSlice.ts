@@ -1,28 +1,30 @@
-import { VITE_API_URL } from "@configs/env";
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { api } from "@services/api";
+import { notificationService } from "@services/notification";
 import { debouncedSendMessage } from "@store/utils/debouncedSender";
 
 export interface Message {
-  messageId?: string;
   projectId: string;
   userId: number;
   role: "user" | "agent" | "system";
   message: string;
+  messageId?: string;
   timestamp?: string;
 }
 
 type ChatState = {
   messages: Message[];
-  isLoading: boolean;
-  isTyping: boolean
+  isTyping: boolean;
+  isLoadingMessage: boolean;
+  isLoadingMessages: boolean;
   messageIndexMap: Record<string, number>;
   currentStreamId: string;
 };
 
 const initialState: ChatState = {
   messages: [],
-  isLoading: false,
+  isLoadingMessage: false,
+  isLoadingMessages: false,
   isTyping: false,
   messageIndexMap: {},
   currentStreamId: null,
@@ -35,25 +37,32 @@ const chatSlice = createSlice({
     addMessage(state, action: PayloadAction<Message>) {
       state.messages.push(action.payload);
     },
-    addMessages(state, action: PayloadAction<Message[]>) {
-      state.messages.push(...action.payload);
-    },
     startStream(state, action: PayloadAction<Message>) {
-      const msg = action.payload;
+      const { messageId, projectId, userId, role, message } = action.payload;
+      const indexMessage = state.messages.length;
+      const msg: Message = {
+        messageId,
+        projectId,
+        userId,
+        role,
+        message,
+      };
+
       state.isTyping = true;
-      state.isLoading = false;
-      const indexMessage = state.messages.length
+      state.isLoadingMessage = false;
       state.messages.push(msg);
-      state.currentStreamId = msg.messageId;
-      state.messageIndexMap[msg.messageId] = indexMessage;
+      state.currentStreamId = messageId;
+      state.messageIndexMap[messageId] = indexMessage;
     },
-    appendToCurrentStream(state, action: PayloadAction<{ chunk: string; messageId: string }>) {
+    appendToCurrentStream(state, action: PayloadAction<{ chunk: string; messageId: string; }>) {
       const chunk = action.payload.chunk;
       const messageIndex = state.messageIndexMap[action.payload.messageId];
 
       if (messageIndex === undefined) return;
 
-      state.messages[messageIndex].message += chunk;
+      const message = state.messages[messageIndex];
+
+      message.message += chunk;
     },
     endStream(state) {
       state.isTyping = false;
@@ -76,12 +85,12 @@ const chatSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(sendSSEMessage.pending, (state) => {
-        state.isLoading = true;
+        state.isLoadingMessage = true;
       })
       .addCase(sendSSEMessage.rejected, (state) => {
-        state.isLoading = false;
+        state.isLoadingMessage = false;
+        notificationService.error('Ошибка соединения с чатом');
       })
-
 
       .addCase(cancelAiTyping.fulfilled, (state) => {
         state.isTyping = false;
@@ -90,11 +99,11 @@ const chatSlice = createSlice({
         state.isTyping = false;
       })
 
-      .addCase(fetchHistoryMessages.pending, (state) => {
-        state.isLoading = true;
+      .addCase(getHistoryMessages.pending, (state) => {
+        state.isLoadingMessages = true;
       })
-      .addCase(fetchHistoryMessages.fulfilled, (state, action: PayloadAction<Message[]>) => {
-        state.isLoading = false;
+      .addCase(getHistoryMessages.fulfilled, (state, action: PayloadAction<Message[]>) => {
+        state.isLoadingMessages = false;
         state.currentStreamId = null;
         state.messages.push(...action.payload);
         state.messageIndexMap = {};
@@ -103,9 +112,11 @@ const chatSlice = createSlice({
             state.messageIndexMap[m.messageId] = index;
           }
         });
-      })
-      .addCase(fetchHistoryMessages.rejected, (state) => {
-        state.isLoading = false;
+      }
+      )
+      .addCase(getHistoryMessages.rejected, (state) => {
+        state.isLoadingMessages = false;
+        notificationService.error('Ошибка при получении истории сообщений');
       });
   },
 });
@@ -117,10 +128,10 @@ export const sendUserMessage = (message: Message) => async (dispatch) => {
 };
 
 export const sendSSEMessage = createAsyncThunk<void, Message, { rejectValue: string }>(
-  "chat/sendMessage",
+  "chat/sendSSEMessage",
   async (payload, { rejectWithValue }) => {
     try {
-      const response = await api.post(`${VITE_API_URL}/chat_message`, {
+      const response = await api.post('/chat_message', {
         project_id: Number(payload.projectId),
         user_id: payload.userId,
         role: payload.role,
@@ -128,33 +139,31 @@ export const sendSSEMessage = createAsyncThunk<void, Message, { rejectValue: str
       });
 
       if (!response.data) {
-        return rejectWithValue(`Ошибка ответа сервера: ${response.status}`);
+        return rejectWithValue(`[SSE] Ошибка ответа сервера: ${response.status}`);
       }
     } catch (err) {
-      console.error("[SSE] Ошибка при отправке сообщения:", err);
-      return rejectWithValue("Ошибка при отправке сообщения");
+      return rejectWithValue("[SSE] Ошибка при отправке сообщения");
     }
   }
 );
 
 export const cancelAiTyping = createAsyncThunk<void, string, { rejectValue: string }>(
-  "chat/cancelStream",
+  "chat/cancelAiTyping",
   async (projectId, { rejectWithValue }) => {
     try {
-      const response = await api.post(`${VITE_API_URL}/chat_cancel/${projectId}`);
+      const response = await api.post(`/chat_cancel/${projectId}`);
 
       if (!response.data) {
-        return rejectWithValue(`Ошибка ответа сервера: ${response.status}`);
+        return rejectWithValue(`[SSE ]Ошибка ответа сервера: ${response.status}`);
       }
     } catch (err) {
-      console.error("[SSE] Ошибка при отмене SSE:", err);
-      return rejectWithValue("Ошибка при отмене SSE");
+      return rejectWithValue("[SSE] Ошибка при отмене SSE");
     }
   }
 );
 
-export const fetchHistoryMessages = createAsyncThunk<Message[], string, { rejectValue: string }>(
-  "chat/fetchHistoryMessages",
+export const getHistoryMessages = createAsyncThunk<Message[], string, { rejectValue: string }>(
+  "chat/getHistoryMessages",
   async (projectId, { rejectWithValue }) => {
     try {
       const res = await api.get(`/history_messages/${projectId}`);
@@ -168,7 +177,6 @@ export const fetchHistoryMessages = createAsyncThunk<Message[], string, { reject
         return [];
       }
     } catch (err) {
-      console.error("[SSE] Ошибка при получении истории сообщений:", err);
       return rejectWithValue("Ошибка при получении истории сообщений");
     }
   }
@@ -177,7 +185,6 @@ export const fetchHistoryMessages = createAsyncThunk<Message[], string, { reject
 /** Экшены */
 export const {
   addMessage,
-  addMessages,
   startStream,
   appendToCurrentStream,
   endStream,

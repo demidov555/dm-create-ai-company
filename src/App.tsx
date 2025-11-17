@@ -8,7 +8,6 @@ import { ProjectsPage } from "./pages/ProjectsPage";
 import { ProjectDetailPage } from "./pages/ProjectDetailPage";
 import { SettingsPage } from "./pages/SettingsPage";
 import { AppSidebar } from "./components/AppSidebar";
-import { CreateProjectDialog } from "./components/CreateProjectDialog";
 import { Toaster } from "@ui/sonner";
 import { useEffect } from "react";
 import { themeService } from "@services/themeService";
@@ -47,7 +46,6 @@ export default function App() {
             }
           />
         </Routes>
-        <CreateProjectDialog />
       </BrowserRouter>
       <Toaster theme="system" richColors expand />
     </Provider>

@@ -12,7 +12,7 @@ import {
   selectAuthError,
   selectIsAuthenticated,
 } from "../store/selectors/authSelectors";
-import { sendCode, verifyPhoneCode } from "../store/slices/authThunks";
+import { sendCode, verifyPhoneCode } from "@store/slices/authSlice";
 import { clearError, resetVerification } from "../store/slices/authSlice";
 
 export function LoginPage() {
