@@ -1,85 +1,15 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import api from "../../services/api";
+import api, { CommonError } from "../../services/api";
 import { notificationService } from "@services/notification";
-
-const mockData = {
-  projectInfo: {
-    projectId: '1',
-    name: 'Фабрика создания приложения',
-    description: 'Платформа, предназначенная для быстрого и удобного создания цифровых продуктов с помощью ai. Она объединяет инструменты, шаблоны и процессы, позволяя разработчикам, командам и стартапам запускать веб- и мобильные приложения с минимальными затратами времени и ресурсов. Проект ориентирован на автоматизацию, гибкость и масштабируемость, превращая разработку в понятный и управляемый процесс.',
-    status: 'in-progress',
-    agent_count: 5,
-    last_updated: '22.11.25',
-  },
-  agents: [
-    {
-      projectId: '1',
-      agentId: '1',
-      currentTask: 'Разрабатываю фронтенд на react',
-      name: 'AI Frontend agent',
-      role: 'Frontend разработчик',
-      status: "working",
-    },
-    {
-      projectId: '1',
-      agentId: '2',
-      currentTask: 'Разрабатываю backend на py',
-      name: 'AI Backend agent',
-      role: 'Backend разработчик',
-      status: "working",
-    },
-    {
-      projectId: '1',
-      agentId: '3',
-      currentTask: 'Пока нечего тестировать',
-      name: 'AI QA agent',
-      role: 'QA специалист',
-      status: "completed",
-    },
-    {
-      projectId: '1',
-      agentId: '4',
-      currentTask: 'Ожиданю разработчиков, чтобы поднять инфраструктуру',
-      name: 'AI DevOps agent',
-      role: 'DevOps специалист',
-      status: "idle",
-    }
-  ],
-  metrica: {
-    progress: {
-      percent: 10,
-      lastUpdate: '22.11.25',
-    },
-    componentCounter: 15,
-    codeStringCoutner: 490,
-    testOverageCouter: 75,
-  },
-} as ProjectDetails;
 
 export interface ProjectDetailsInfo {
   projectId: string;
+  shortId: string;
   name: string;
   description: string;
   status: string;
-  agent_count: number;
-  last_updated: string;
-}
-
-export interface ProjectSettingsInfo {
-  name: string;
-  description: string;
-}
-
-export interface ProjectDetails {
-  projectInfo: ProjectDetailsInfo,
-  agents: {
-    projectId: string;
-    agentId: string;
-    currentTask: string;
-    name: string;
-    role: string;
-    status: "idle" | "working" | "completed";
-  }[];
+  agentIds: string[];
+  lastUpdated: string;
   metrica: {
     progress: {
       percent: number;
@@ -91,28 +21,100 @@ export interface ProjectDetails {
   };
 }
 
+export interface ProjectSettingsInfo {
+  name: string;
+  description: string;
+}
+
 interface ProjectDetailsState {
-  project: ProjectDetails;
-  status: "idle" | "loading" | "succeeded" | "failed";
-  error: string | null;
+  project: ProjectDetailsInfo;
+  isLoadingProject: boolean;
+  isLoadingUpdateProject: boolean;
+  error: CommonError
 }
 
 const initialState: ProjectDetailsState = {
   project: {
-    projectInfo: {} as any,
-    agents: [],
-    metrica: {} as any,
+    projectId: null,
+    shortId: null,
+    name: null,
+    description: null,
+    status: null,
+    agentIds: [],
+    lastUpdated: null,
+    metrica: {
+      progress: {
+        percent: 0,
+        lastUpdate: null,
+      },
+      componentCounter: 0,
+      codeStringCoutner: 0,
+      testOverageCouter: 0,
+    },
   },
-  status: "idle",
+  isLoadingProject: false,
+  isLoadingUpdateProject: false,
   error: null,
 };
 
-export const fetchProject = createAsyncThunk<ProjectDetails, string, { rejectValue: string }>("projectDetails/fetch", async (projectId, { rejectWithValue }) => {
+const projectDetailsSlice = createSlice({
+  name: "projectDetails",
+  initialState,
+  reducers: {},
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchProject.pending, (state) => {
+        state.error = null;
+        state.isLoadingProject = true;
+      })
+      .addCase(fetchProject.fulfilled, (state, action) => {
+        state.project = action.payload;
+        state.isLoadingProject = false;
+      })
+      .addCase(fetchProject.rejected, (state, action) => {
+        state.error = action.payload;
+        state.isLoadingProject = false;
+      })
+      .addCase(refetchProject.pending, (state, action) => {
+        state.error = null;
+      })
+      .addCase(refetchProject.fulfilled, (state, action) => {
+        state.project = action.payload;
+      })
+      .addCase(refetchProject.rejected, (state, action) => {
+        state.error = action.payload;
+      })
+
+      .addCase(updateProject.pending, (state) => {
+        state.isLoadingUpdateProject = true;
+      })
+      .addCase(updateProject.fulfilled, (state, action) => {
+        notificationService.success('Настройки сохранены');
+        state.isLoadingUpdateProject = false;
+      })
+      .addCase(updateProject.rejected, (state, action) => {
+        notificationService.error('Ошибка сохранения');
+        state.isLoadingUpdateProject = false;
+      })
+  },
+});
+
+
+export const fetchProject = createAsyncThunk<ProjectDetailsInfo, string, { rejectValue: CommonError }>("projectDetails/fetchProject", async (projectId, { rejectWithValue }) => {
   try {
-    const response = await api.get(`/projects/${projectId}`);
-    return response.data;
-  } catch (err: any) {
-    return rejectWithValue(err.message || "Failed to fetch project details");
+    const data = await getProject(projectId);
+    return data;
+  } catch (err) {
+    return rejectWithValue(err);
+  }
+});
+
+export const refetchProject = createAsyncThunk<ProjectDetailsInfo, string, { rejectValue: CommonError }>("projectDetails/refetchProject", async (projectId, { rejectWithValue }) => {
+  try {
+    const data = await getProject(projectId);
+    return data;
+  } catch (err) {
+    return rejectWithValue(err);
   }
 });
 
@@ -123,78 +125,14 @@ export const updateProject = createAsyncThunk<void, Partial<ProjectSettingsInfo>
       const response = await api.patch(`/projects/${projectId}`, updates);
       return response.data;
     } catch (err: any) {
-      return rejectWithValue(err.message || "Failed to update project");
+      return rejectWithValue(err);
     }
   }
 );
 
-export const deleteProject = createAsyncThunk<string, string, { rejectValue: string }>(
-  'project/delete',
-  async (projectId: string, { rejectWithValue }) => {
+async function getProject(projectId: string): Promise<ProjectDetailsInfo> {
+  const response = await api.get(`/projects/${projectId}`);
+  return response.data.projectInfo;
+}
 
-    try {
-      await api.delete(`/projects/${projectId}`);
-      return projectId;
-    } catch (err: any) {
-      return rejectWithValue(err.message || "Failed to update project");
-    }
-  }
-);
-
-const projectDetailsSlice = createSlice({
-  name: "projectDetails",
-  initialState,
-  reducers: {
-    clearProjectDetails(state) {
-      state.project = {} as any;
-      state.status = "idle";
-      state.error = null;
-    },
-  },
-  extraReducers: (builder) => {
-    builder
-      .addCase(fetchProject.pending, (state) => {
-        state.status = "loading";
-        state.error = null;
-      })
-      .addCase(fetchProject.fulfilled, (state, action) => {
-        state.status = "succeeded";
-        state.project = action.payload;
-      })
-      .addCase(fetchProject.rejected, (state, action) => {
-        state.status = "failed";
-        state.error = action.payload as string || "Unknown error";
-        state.project = mockData;
-      })
-      .addCase(updateProject.pending, (state) => {
-        state.status = "loading";
-        state.error = null;
-      })
-      .addCase(updateProject.fulfilled, (state, action) => {
-        state.status = "succeeded";
-        notificationService.success('Настройки сохранены');
-      })
-      .addCase(updateProject.rejected, (state, action) => {
-        state.status = "failed";
-        state.error = action.payload as string || "Unknown error";
-        notificationService.error('Ошибка сохранения');
-      })
-      .addCase(deleteProject.pending, (state) => {
-        state.status = "loading";
-        state.error = null;
-      })
-      .addCase(deleteProject.fulfilled, (state, action) => {
-        state.status = "succeeded";
-        notificationService.success('Проект удален');
-        window.location.href = '/projects';
-      })
-      .addCase(deleteProject.rejected, (state, action) => {
-        state.status = "failed";
-        state.error = action.payload as string || "Unknown error";
-        notificationService.error('Ошибка удаления');
-      })
-  },
-});
-
-export const { clearProjectDetails } = projectDetailsSlice.actions;
 export default projectDetailsSlice.reducer;

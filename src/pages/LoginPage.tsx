@@ -38,10 +38,8 @@ export function LoginPage() {
     const result = await dispatch(sendCode(phone));
 
     if (sendCode.rejected.match(result)) {
-      // Ошибка уже в state.error
       return;
     }
-    // Успех → verificationStep = "otp" (через thunk)
   };
 
   const handleVerifyCode = async (code: string) => {

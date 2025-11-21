@@ -3,16 +3,16 @@ import { Button } from "@ui/button";
 import { Card } from "@ui/card";
 import { Progress } from "@ui/progress";
 import { Badge } from "@ui/badge";
+import { formatShortDateTime } from "@utils/date";
 
 interface StatusPanelProps {
   onEdit: () => void;
   status: string;
   lastUpdated: string;
+  percent: number;
 }
 
-export function StatusPanel({ onEdit, status, lastUpdated }: StatusPanelProps) {
-  const progress = status === "completed" ? 100 : status === "in-progress" ? 15 : 20;
-
+export function StatusPanel({ onEdit, percent, status, lastUpdated }: StatusPanelProps) {
   const getStatusColor = () => {
     switch (status) {
       case "completed":
@@ -46,19 +46,19 @@ export function StatusPanel({ onEdit, status, lastUpdated }: StatusPanelProps) {
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </div>
           <h3 className="text-sm text-foreground mb-1">
-            Прогресс проекта: {progress}%
+            Прогресс проекта: {percent}%
           </h3>
           <p className="text-sm text-muted-foreground">
-            Обновлено: {lastUpdated}
+            Обновлено: {formatShortDateTime(lastUpdated)}
           </p>
         </div>
         <div className="text-right">
-          <p className="text-2xl text-foreground">{progress}%</p>
+          <p className="text-2xl text-foreground">{percent}%</p>
         </div>
       </div>
 
       <div className="mb-6">
-        <Progress value={progress} className="h-2" />
+        <Progress value={percent} className="h-2" />
       </div>
 
       <div className="flex gap-3">

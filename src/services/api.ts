@@ -2,6 +2,14 @@ import axios, { AxiosError } from "axios";
 import { VITE_API_URL } from "../../configs/env";
 import { localStorageService } from "./localStorageService";
 
+export interface ResponseError {
+  error: string;
+  message: string;
+  status: number;
+}
+
+export type CommonError = AxiosError<ResponseError, any>;
+
 export const api = axios.create({
 	baseURL: VITE_API_URL,
 	// withCredentials: true,

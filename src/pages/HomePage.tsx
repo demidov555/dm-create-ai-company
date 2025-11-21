@@ -2,14 +2,12 @@ import { ArrowRight, Sparkles, Zap, Users, Rocket, FolderOpen, TrendingUp } from
 import { useNavigate } from "react-router-dom";
 import { useAppSelector } from "../store/hooks";
 import { selectProjectsCount } from "../store/selectors/projectsSelectors";
-import { selectWorkingAgentsCount } from "../store/selectors/agentSelectors";
 import { Button } from "@ui/button";
 import { Card } from "@ui/card";
 
 export function HomePage() {
   const navigate = useNavigate();
   const projectsCount = useAppSelector(selectProjectsCount);
-  const workingAgentsCount = useAppSelector(selectWorkingAgentsCount);
   const features = [
     {
       icon: Users,
@@ -31,7 +29,6 @@ export function HomePage() {
   return (
     <div className="flex-1 overflow-auto">
       <div className="min-h-screen flex flex-col">
-        {/* Hero Section */}
         <div className="flex-1 flex items-center justify-center px-8 py-20">
           <div className="max-w-4xl mx-auto text-center">
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full mb-8">
@@ -61,7 +58,6 @@ export function HomePage() {
           </div>
         </div>
 
-        {/* Features Section */}
         <div className="px-8 py-20 bg-secondary/30">
           <div className="max-w-6xl mx-auto">
             <h2 className="text-3xl text-center mb-4 text-foreground">
@@ -85,7 +81,6 @@ export function HomePage() {
           </div>
         </div>
 
-        {/* Stats Section */}
         {projectsCount > 0 && (
           <div className="px-8 py-20 bg-secondary/30">
             <div className="max-w-6xl mx-auto">
@@ -104,14 +99,14 @@ export function HomePage() {
                   <div className="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center mx-auto mb-4">
                     <TrendingUp className="h-6 w-6 text-blue-600" />
                   </div>
-                  {/* <p className="text-3xl mb-2 text-foreground">{activeProjectsCount}</p> */}
+                  <p className="text-3xl mb-2 text-foreground">{projectsCount}</p>
                   <p className="text-sm text-muted-foreground">Активных проектов</p>
                 </Card>
                 <Card className="p-8 border border-border text-center">
                   <div className="w-12 h-12 bg-green-500/10 rounded-xl flex items-center justify-center mx-auto mb-4">
                     <Users className="h-6 w-6 text-green-600" />
                   </div>
-                  <p className="text-3xl mb-2 text-foreground">{workingAgentsCount}</p>
+                  <p className="text-3xl mb-2 text-foreground">5</p>
                   <p className="text-sm text-muted-foreground">Агентов работают</p>
                 </Card>
               </div>
@@ -119,7 +114,6 @@ export function HomePage() {
           </div>
         )}
 
-        {/* CTA Section */}
         <div className="px-8 py-20">
           <div className="max-w-4xl mx-auto text-center">
             <h2 className="text-3xl mb-4 text-foreground">

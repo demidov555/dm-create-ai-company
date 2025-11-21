@@ -180,6 +180,11 @@
 
 html {
   font-size: var(--font-size);
+  background: var(--background);
+}
+
+.dark html {
+  background: var(--background);
 }
 
 /* Настройка глобального скролла */

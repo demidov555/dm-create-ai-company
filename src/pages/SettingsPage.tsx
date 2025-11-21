@@ -43,7 +43,6 @@ export function SettingsPage() {
           </p>
 
           <div className="space-y-6">
-            {/* Appearance Settings */}
             <Card>
               <h2 className="text-xl mb-4 text-foreground">Внешний вид</h2>
               <div className="flex items-center justify-between">
@@ -61,17 +60,9 @@ export function SettingsPage() {
               </div>
             </Card>
 
-            {/* Account Settings */}
             <Card>
               <h2 className="text-xl mb-4 text-foreground">Аккаунт</h2>
               <div className="space-y-4">
-                <div>
-                  <Label className="text-sm text-muted-foreground">
-                    Имя
-                  </Label>
-                  <p className="mt-1 text-foreground font-medium">Michael</p>
-                </div>
-
                 <div>
                   <Label className="text-sm text-muted-foreground">
                     Номер телефона

@@ -13,10 +13,9 @@ interface PromptDialogProps {
   promptProp: string;
   type: string;
   projectId: string;
-  userId: number;
 }
 
-export function PromptDialog({ promptProp, type, projectId, userId }: PromptDialogProps) {
+export function PromptDialog({ promptProp, type, projectId }: PromptDialogProps) {
   const dispatch = useAppDispatch();
   const open = useSelector(selectDialogOpen(type));
 
@@ -57,7 +56,7 @@ export function PromptDialog({ promptProp, type, projectId, userId }: PromptDial
   const onSubmit = async () => {
     if (!validatePrompt(prompt)) return;
 
-    const message: Message = { projectId, userId, role: "user", message: `Промпт получен: ${prompt}` }
+    const message: Message = { projectId, role: "user", message: `Промпт получен: ${prompt}` }
 
     dispatch(addMessage(message));
     dispatch(sendSSEMessage(message));

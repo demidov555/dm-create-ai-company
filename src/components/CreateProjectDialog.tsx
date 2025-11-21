@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Dialog,
@@ -14,31 +14,32 @@ import { Textarea } from "@ui/textarea";
 import { Button } from "@ui/button";
 import { Bot, Loader, Plus } from "lucide-react";
 import { Checkbox } from "@ui/checkbox";
-import { useAppDispatch } from "../store/hooks";
-import { addProject } from "../store/slices/projectsSlice";
-import { closeDialog, selectDialogOpen } from "../store/slices/uiSlice";
+import { useAppDispatch, useAppSelector } from "@store/hooks";
+import { addProject } from "@store/slices/projectsSlice";
+import { closeDialog, selectDialogOpen } from "@store/slices/uiSlice";
 import { useSelector } from "react-redux";
+import { getAgents } from "@store/slices/agentsSlice";
+import { selectAgents } from "@store/selectors/agentSelectors";
 
-const availableAgents = [
-  { id: "product-manager", name: "Продукт-менеджер", required: true },
-  { id: "designer", name: "Дизайнер" },
-  { id: "frontend-dev", name: "Frontend разработчик" },
-  { id: "backend-dev", name: "Backend разработчик" },
-  { id: "qa", name: "QA инженер" },
-  { id: "marketer", name: "Маркетолог" },
-];
 const dialogName = "createProjectsDialog";
 
 export function CreateProjectDialog({ isLoading }: { isLoading: boolean }) {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const open = useSelector(selectDialogOpen(dialogName));
+  const agents = useAppSelector(selectAgents);
 
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [selectedAgents, setSelectedAgents] = useState<string[]>([
-    "product-manager",
+    "product_manager",
   ]);
+
+  useEffect(() => {
+    if (open) {
+      dispatch(getAgents());
+    }
+  }, [open, dispatch]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,7 +48,7 @@ export function CreateProjectDialog({ isLoading }: { isLoading: boolean }) {
       addProject({
         name,
         description,
-        agent_count: selectedAgents.length,
+        agent_ids: selectedAgents,
       })
     );
 
@@ -56,14 +57,11 @@ export function CreateProjectDialog({ isLoading }: { isLoading: boolean }) {
 
       setName("");
       setDescription("");
-      setSelectedAgents(["product-manager"]);
+      setSelectedAgents(["product_manager"]);
       dispatch(closeDialog(dialogName));
 
       navigate(`/projects/${createdProjectId}`);
-    } else {
-      console.error("Ошибка при создании проекта:", action.payload);
     }
-
   };
 
   const handleClose = () => {
@@ -71,7 +69,7 @@ export function CreateProjectDialog({ isLoading }: { isLoading: boolean }) {
   };
 
   const toggleAgent = (agentId: string) => {
-    if (agentId === "product-manager") return;
+    if (agentId === "product_manager") return;
 
     setSelectedAgents((prev) =>
       prev.includes(agentId)
@@ -115,16 +113,16 @@ export function CreateProjectDialog({ isLoading }: { isLoading: boolean }) {
             <div className="space-y-3">
               <Label>Команда агентов</Label>
               <div className="space-y-3 border border-border rounded-lg p-4 bg-secondary/30">
-                {availableAgents.map((agent) => (
-                  <div key={agent.id} className="flex items-center gap-3">
+                {agents.map((agent) => (
+                  <div key={agent.agentId} className="flex items-center gap-3">
                     <Checkbox
-                      id={agent.id}
-                      checked={selectedAgents.includes(agent.id)}
-                      onCheckedChange={() => toggleAgent(agent.id)}
+                      id={agent.agentId}
+                      checked={selectedAgents.includes(agent.agentId)}
+                      onCheckedChange={() => toggleAgent(agent.agentId)}
                       disabled={agent.required}
                     />
                     <label
-                      htmlFor={agent.id}
+                      htmlFor={agent.agentId}
                       className="flex items-center gap-2 cursor-pointer flex-1"
                     >
                       <Bot className="h-4 w-4 text-primary" />

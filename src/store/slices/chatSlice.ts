@@ -5,7 +5,6 @@ import { debouncedSendMessage } from "@store/utils/debouncedSender";
 
 export interface Message {
   projectId: string;
-  userId: number;
   role: "user" | "agent" | "system";
   message: string;
   messageId?: string;
@@ -38,12 +37,11 @@ const chatSlice = createSlice({
       state.messages.push(action.payload);
     },
     startStream(state, action: PayloadAction<Message>) {
-      const { messageId, projectId, userId, role, message } = action.payload;
+      const { messageId, projectId, role, message } = action.payload;
       const indexMessage = state.messages.length;
       const msg: Message = {
         messageId,
         projectId,
-        userId,
         role,
         message,
       };
@@ -103,6 +101,7 @@ const chatSlice = createSlice({
         state.isLoadingMessages = true;
       })
       .addCase(getHistoryMessages.fulfilled, (state, action: PayloadAction<Message[]>) => {
+        state.messages = [];
         state.isLoadingMessages = false;
         state.currentStreamId = null;
         state.messages.push(...action.payload);
@@ -132,8 +131,7 @@ export const sendSSEMessage = createAsyncThunk<void, Message, { rejectValue: str
   async (payload, { rejectWithValue }) => {
     try {
       const response = await api.post('/chat_message', {
-        project_id: Number(payload.projectId),
-        user_id: payload.userId,
+        project_id: payload.projectId,
         role: payload.role,
         message: payload.message,
       });

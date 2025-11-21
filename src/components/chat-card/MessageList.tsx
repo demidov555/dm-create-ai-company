@@ -16,12 +16,11 @@ import { AiMarkdown } from "./AiMarkdown";
 export interface MessageListProps {
   messages: Message[];
   projectId: string;
-  userId: number;
   className?: string;
 }
 
 export const MessageList = forwardRef<HTMLDivElement, MessageListProps>(
-  function MessageList({ messages, projectId, userId, className }, ref) {
+  function MessageList({ messages, projectId, className }, ref) {
     const dispatch = useDispatch();
 
     const openPromptDialog = (type: string) => {
@@ -119,25 +118,21 @@ export const MessageList = forwardRef<HTMLDivElement, MessageListProps>(
 
         <PromptDialog
           projectId={projectId}
-          userId={userId}
           promptProp={DETAILED_PROMPT_TEMPLATE}
           type="detaildPrompt"
         />
         <PromptDialog
           projectId={projectId}
-          userId={userId}
           promptProp={USER_FRIENDLY_PROMPT_TEMPLATE}
           type="userFrendlyPrompt"
         />
         <PromptDialog
           projectId={projectId}
-          userId={userId}
           promptProp={READY_LANDING_PROMPT}
           type="readyPrompt"
         />
         <PromptDialog
           projectId={projectId}
-          userId={userId}
           promptProp="Напиши мне текст чтобы в нем были все кейсы markdown и + добавь обычный рыбу текст в конце просто по параграфам как обычный ответ"
           type="common"
         />

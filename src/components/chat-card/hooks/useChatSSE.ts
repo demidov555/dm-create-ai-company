@@ -9,7 +9,7 @@ import { sseService } from "@services/sse";
 import { VITE_API_URL } from "@configs/env";
 import { store } from "@store/store";
 
-export function useChatSSE({ projectId, userId }) {
+export function useChatSSE({ projectId }) {
   const dispatch = useAppDispatch();
 
   /** ===========================
@@ -30,7 +30,6 @@ export function useChatSSE({ projectId, userId }) {
           startStream({
             messageId,
             projectId,
-            userId,
             role: "agent",
             message: chunk,
           })
@@ -39,7 +38,7 @@ export function useChatSSE({ projectId, userId }) {
         dispatch(appendToCurrentStream({ chunk, messageId }));
       }
     },
-    [dispatch, projectId, userId]
+    [dispatch, projectId]
   );
 
   const onEnd = useCallback(() => dispatch(endStream()), [dispatch]);

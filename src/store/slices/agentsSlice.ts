@@ -1,99 +1,91 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import api from "@services/api";
+import { notificationService } from "@services/notification";
 
 export interface Agent {
-  id: string;
+  projectId: string;
+  agentId: string;
+  currentTask: string;
   name: string;
   role: string;
   status: "idle" | "working" | "completed";
-  currentTask?: string;
-  projectId?: string;
+  required: boolean;
 }
 
 interface AgentsState {
   agents: Agent[];
+  isLoadingList: boolean;
 }
 
 const initialState: AgentsState = {
-  agents: [
-    {
-      id: "1",
-      name: "AI Продукт-менеджер",
-      role: "Координация команды и распределение задач",
-      status: "working",
-      currentTask: "Анализ требований и создание технического задания",
-    },
-    {
-      id: "2",
-      name: "AI Дизайнер",
-      role: "UI/UX дизайн и прототипирование",
-      status: "working",
-      currentTask: "Разработка дизайн-системы и компонентов",
-    },
-    {
-      id: "3",
-      name: "AI Frontend разработчик",
-      role: "Разработка интерфейса",
-      status: "idle",
-    },
-    {
-      id: "4",
-      name: "AI Backend разработчик",
-      role: "Серверная логика и API",
-      status: "idle",
-    },
-    {
-      id: "5",
-      name: "AI QA инженер",
-      role: "Тестирование и контроль качества",
-      status: "idle",
-    },
-  ],
+  agents: [],
+  isLoadingList: false,
 };
 
 const agentsSlice = createSlice({
   name: "agents",
   initialState,
-  reducers: {
-    updateAgentStatus: (
-      state,
-      action: PayloadAction<{
-        agentId: string;
-        status: "idle" | "working" | "completed";
-        currentTask?: string;
-      }>
-    ) => {
-      const agent = state.agents.find((a) => a.id === action.payload.agentId);
-      if (agent) {
-        agent.status = action.payload.status;
-        if (action.payload.currentTask !== undefined) {
-          agent.currentTask = action.payload.currentTask;
-        }
-      }
-    },
-    assignAgentToProject: (
-      state,
-      action: PayloadAction<{ agentId: string; projectId: string }>
-    ) => {
-      const agent = state.agents.find((a) => a.id === action.payload.agentId);
-      if (agent) {
-        agent.projectId = action.payload.projectId;
-      }
-    },
-    resetAgent: (state, action: PayloadAction<string>) => {
-      const agent = state.agents.find((a) => a.id === action.payload);
-      if (agent) {
-        agent.status = "idle";
-        agent.currentTask = undefined;
-        agent.projectId = undefined;
-      }
-    },
+  reducers: {},
+  extraReducers: (builder) => {
+    builder
+      .addCase(getAgentByIds.pending, (state) => {
+        state.isLoadingList = true;
+      })
+      .addCase(getAgentByIds.fulfilled, (state, action) => {
+        state.agents = [];
+        state.agents.push(...action.payload);
+        state.isLoadingList = false;
+      })
+      .addCase(getAgentByIds.rejected, (state, action) => {
+        state.isLoadingList = false;
+        notificationService.error('Ошибка при получении агентов');
+      })
+
+      .addCase(getAgents.pending, (state) => {
+        state.isLoadingList = true;
+      })
+      .addCase(getAgents.fulfilled, (state, action) => {
+        state.agents = [];
+        console.log(action.payload)
+        state.agents.push(...action.payload);
+        state.isLoadingList = false;
+      })
+      .addCase(getAgents.rejected, (state, action) => {
+        state.isLoadingList = false;
+        notificationService.error('Ошибка при получении агентов');
+      })
   },
 });
 
+export const getAgentByIds = createAsyncThunk<Agent[], { projectId: string, agentIds: string[] }, { rejectValue: string }>(
+  'agents/getAgentsByIds',
+  async ({ projectId, agentIds }, { rejectWithValue }) => {
+    try {
+      const res = await api.post(`/agents/by_ids`, { project_id: projectId, agent_ids: agentIds });
+
+      return res.data.list;
+    } catch (err: any) {
+      return rejectWithValue(err);
+    }
+  }
+);
+
+export const getAgents = createAsyncThunk<Agent[], void, { rejectValue: string }>(
+  'agents/getAgents',
+  async (_, { rejectWithValue }) => {
+
+    try {
+      const res = await api.get(`/agents/available`);
+
+      return res.data.list;
+    } catch (err: any) {
+      return rejectWithValue(err);
+    }
+  }
+);
+
 export const {
-  updateAgentStatus,
-  assignAgentToProject,
-  resetAgent,
+
 } = agentsSlice.actions;
 
 export default agentsSlice.reducer;

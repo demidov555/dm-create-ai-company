@@ -13,16 +13,58 @@ export interface ProjectSummary {
 interface ProjectsState {
   list: ProjectSummary[];
   isLoadingList: boolean;
-  isLoadingCreateProject: boolean,
-  error: string;
+  isLoadingActionProject: boolean,
 }
 
 const initialState: ProjectsState = {
   list: [],
   isLoadingList: false,
-  isLoadingCreateProject: false,
-  error: null,
+  isLoadingActionProject: false,
 };
+
+const projectsSlice = createSlice({
+  name: "projects",
+  initialState,
+  reducers: {},
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchProjects.pending, (state) => {
+        state.isLoadingList = true;
+      })
+      .addCase(fetchProjects.fulfilled, (state, action: PayloadAction<ProjectSummary[]>) => {
+        state.list = action.payload;
+        state.isLoadingList = false;
+      })
+      .addCase(fetchProjects.rejected, (state, action) => {
+        state.isLoadingList = false;
+        notificationService.error('Ошибка загрузки проектов');
+      })
+
+      .addCase(addProject.pending, (state) => {
+        state.isLoadingActionProject = true;
+      })
+      .addCase(addProject.fulfilled, (state) => {
+        state.isLoadingActionProject = false;
+        notificationService.success('Проект создан');
+      })
+      .addCase(addProject.rejected, (state) => {
+        state.isLoadingActionProject = false;
+        notificationService.error('Ошибка создания проекта');
+      })
+
+      .addCase(deleteProject.pending, (state) => {
+        state.isLoadingActionProject = true;
+      })
+      .addCase(deleteProject.fulfilled, (state) => {
+        state.isLoadingActionProject = false;
+        notificationService.success('Проект удален');
+      })
+      .addCase(deleteProject.rejected, (state) => {
+        state.isLoadingActionProject = false;
+        notificationService.error('Ошибка создания проекта');
+      })
+  },
+});
 
 export const fetchProjects = createAsyncThunk<ProjectSummary[], void, { rejectValue: string }>("projects/fetchProjects", async (_, { rejectWithValue }) => {
   try {
@@ -33,9 +75,9 @@ export const fetchProjects = createAsyncThunk<ProjectSummary[], void, { rejectVa
   }
 });
 
-export const deleteProject = createAsyncThunk<void, number, { rejectValue: string }>("projects/delete", async (id, { rejectWithValue }) => {
+export const deleteProject = createAsyncThunk<void, string, { rejectValue: string }>("projects/delete", async (id, { rejectWithValue }) => {
   try {
-    await api.delete(`/projects${id}`);
+    await api.delete(`/projects/${id}`);
   } catch (err: any) {
     return rejectWithValue(err.message || "Failed to fetch projects");
   }
@@ -45,47 +87,10 @@ export const addProject = createAsyncThunk<number, any, { rejectValue: string }>
   try {
     const result = await api.post(`/project_create`, body);
 
-    return result.data.projectId;
+    return result.data.shortId;
   } catch (err: any) {
     return rejectWithValue(err.message || "Failed to create projects");
   }
-});
-
-const projectsSlice = createSlice({
-  name: "projects",
-  initialState,
-  reducers: {},
-  extraReducers: (builder) => {
-    builder
-      .addCase(fetchProjects.pending, (state) => {
-        state.isLoadingList = true;
-        state.error = null;
-      })
-      .addCase(fetchProjects.fulfilled, (state, action: PayloadAction<ProjectSummary[]>) => {
-        state.list = action.payload;
-        state.isLoadingList = false;
-      })
-      .addCase(fetchProjects.rejected, (state, action) => {
-        state.error = action.payload;
-        state.isLoadingList = false;
-        notificationService.error('Ошибка загрузки проектов');
-      })
-
-      .addCase(addProject.pending, (state) => {
-        state.error = null;
-        state.isLoadingCreateProject = true;
-      })
-      .addCase(addProject.fulfilled, (state, action: PayloadAction<number>) => {
-        state.error = null;
-        state.isLoadingCreateProject = false;
-        notificationService.success('Проект создан');
-      })
-      .addCase(addProject.rejected, (state, action) => {
-        state.error = action.payload;
-        state.isLoadingCreateProject = false;
-        notificationService.error('Ошибка создания проекта');
-      })
-  },
 });
 
 export default projectsSlice.reducer;

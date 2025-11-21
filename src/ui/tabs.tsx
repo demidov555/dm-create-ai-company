@@ -6,12 +6,19 @@ import * as TabsPrimitive from "@radix-ui/react-tabs";
 import { cn } from "./utils";
 
 function Tabs({
+  value,
+  onValueChange,
   className,
   ...props
-}: React.ComponentProps<typeof TabsPrimitive.Root>) {
+}: React.ComponentProps<typeof TabsPrimitive.Root> & {
+  value?: string;
+  onValueChange?: (value: string) => void;
+}) {
   return (
     <TabsPrimitive.Root
       data-slot="tabs"
+      value={value}
+      onValueChange={onValueChange}
       className={cn("flex flex-col gap-4", className)}
       {...props}
     />

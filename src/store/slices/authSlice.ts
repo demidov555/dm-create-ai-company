@@ -7,6 +7,11 @@ import { authService } from "@services/authService";
 
 export type VerificationStep = "phone" | "otp" | "authenticated";
 
+export interface User {
+  id: string;
+  phone: string;
+}
+
 export interface AuthState {
   isAuthenticated: boolean;
   phoneNumber: string | null;
@@ -14,6 +19,7 @@ export interface AuthState {
   isLoading: boolean;
   error: string | null;
   uid: null | string
+  user: User;
 }
 
 export interface FirebaseToken {
@@ -36,6 +42,10 @@ const initialState: AuthState = {
   isLoading: false,
   error: null,
   uid: null,
+  user: {
+    id: null,
+    phone: null,
+  }
 };
 
 const authSlice = createSlice({
@@ -75,7 +85,7 @@ const authSlice = createSlice({
       state.verificationStep = "phone";
       state.error = null;
       state.isLoading = false;
-      logout()
+      authService.logout();
     },
     clearError: (state) => {
       state.error = null;
@@ -87,26 +97,22 @@ const authSlice = createSlice({
       state.isLoading = false;
     },
   },
-
-  // extraReducers — используем thunks напрямую!
   extraReducers: (builder) => {
     builder
-      // sendCode
       .addCase(sendCode.pending, (state) => {
         state.isLoading = true;
         state.error = null;
       })
       .addCase(sendCode.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.phoneNumber = action.payload; // ← payload есть!
+        state.phoneNumber = action.payload;
         state.verificationStep = "otp";
       })
       .addCase(sendCode.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.payload as string; // ← payload есть!
+        state.error = action.payload as string;
       })
 
-      // verifyCode
       .addCase(verifyPhoneCode.pending, (state) => {
         state.isLoading = true;
         state.error = null;
@@ -116,6 +122,10 @@ const authSlice = createSlice({
         state.phoneNumber = action.payload.phone;
         state.uid = action.payload.uid.toString();
         state.verificationStep = "authenticated";
+        state.user = {
+          id: '101',
+          phone: action.payload.phone,
+        };
 
         localStorageService.setItem("access_token", action.payload.access_token);
         localStorageService.setItem("phone", action.payload.phone || "");
@@ -123,7 +133,6 @@ const authSlice = createSlice({
       })
       .addCase(verifyPhoneCode.rejected, (state, action) => {
         state.isLoading = false;
-        // state.error = action.payload || "Ошибка проверки кода";  // ← типизировано!
       });
   },
 });
@@ -165,11 +174,6 @@ export const verifyPhoneCode = createAsyncThunk(
     }
   }
 );
-
-export const logout = createAsyncThunk("auth/logout", async () => {
-  authService.logout();
-  return {};
-});
 
 const clearIndexedDB = () => {
   const request = indexedDB.deleteDatabase("firebaseLocalStorageDb");

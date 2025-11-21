@@ -1,26 +1,8 @@
 import { createSelector } from "@reduxjs/toolkit";
 import { RootState } from "../store";
 
-export const selectAgents = (state: RootState) => state.agents.agents;
+export const selectAgentsState = (state: RootState) => state.agents;
 
-export const selectAgentById = (agentId: string) =>
-  createSelector([selectAgents], (agents) =>
-    agents.find((a) => a.id === agentId)
-  );
+export const selectAgents = createSelector(selectAgentsState, (agentState) => agentState.agents);
+export const selectIsLoadingAgentList = createSelector(selectAgentsState, (agentState) => agentState.isLoadingList);
 
-export const selectAgentsByStatus = (
-  status: "idle" | "working" | "completed"
-) =>
-  createSelector([selectAgents], (agents) =>
-    agents.filter((a) => a.status === status)
-  );
-
-export const selectAgentsByProject = (projectId: string) =>
-  createSelector([selectAgents], (agents) =>
-    agents.filter((a) => a.projectId === projectId)
-  );
-
-export const selectWorkingAgentsCount = createSelector(
-  [selectAgents],
-  (agents) => agents.filter((a) => a.status === "working").length
-);
