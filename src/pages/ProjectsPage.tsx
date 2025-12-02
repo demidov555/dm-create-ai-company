@@ -38,10 +38,7 @@ export function ProjectsPage() {
   };
 
   const handleConfirmDelete = async () => {
-    try {
-      await dispatch(deleteProject(selectedProject.projectId));
-      dispatch(fetchProjects());
-    } catch {}
+    await dispatch(deleteProject(selectedProject.projectId));
   };
 
   const filteredProjects = projects.filter((project) =>

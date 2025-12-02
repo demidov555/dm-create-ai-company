@@ -15,7 +15,7 @@ import { Button } from "@ui/button";
 import { Bot, Loader, Plus } from "lucide-react";
 import { Checkbox } from "@ui/checkbox";
 import { useAppDispatch, useAppSelector } from "@store/hooks";
-import { addProject } from "@store/slices/projectsSlice";
+import { createProject } from "@store/slices/projectsSlice";
 import { closeDialog, selectDialogOpen } from "@store/slices/uiSlice";
 import { useSelector } from "react-redux";
 import { getAgents } from "@store/slices/agentsSlice";
@@ -44,24 +44,16 @@ export function CreateProjectDialog({ isLoading }: { isLoading: boolean }) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const action = await dispatch(
-      addProject({
-        name,
-        description,
-        agent_ids: selectedAgents,
+    await dispatch(createProject({ name, description, agent_ids: selectedAgents }))
+      .unwrap()
+      .then(createdProjectId => {
+        setName("");
+        setDescription("");
+        setSelectedAgents(["product_manager"]);
+        dispatch(closeDialog(dialogName));
+
+        navigate(`/projects/${createdProjectId}`);
       })
-    );
-
-    if (addProject.fulfilled.match(action)) {
-      const createdProjectId = action.payload;
-
-      setName("");
-      setDescription("");
-      setSelectedAgents(["product_manager"]);
-      dispatch(closeDialog(dialogName));
-
-      navigate(`/projects/${createdProjectId}`);
-    }
   };
 
   const handleClose = () => {

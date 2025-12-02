@@ -1,4 +1,4 @@
-import { forwardRef } from "react";
+import { forwardRef, memo } from "react";
 import { Message } from "../../store/slices/chatSlice";
 import { Terminal, User, SearchCode } from "lucide-react";
 import { Button } from "@ui/button";
@@ -19,6 +19,52 @@ export interface MessageListProps {
   className?: string;
 }
 
+/* ---------------------- */
+/*   MEMO COMPONENTS      */
+/* ---------------------- */
+
+const UserMessage = memo(function UserMessage({ msg }: { msg: Message }) {
+  return (
+    <div className="flex justify-end text-foreground/90 max-w-[80%] pr-4">
+      <div className="p-3 bg-secondary/50 text-sm text-left rounded-lg whitespace-break-spaces">
+        {msg.message}
+      </div>
+    </div>
+  );
+});
+
+const AssistantMessage = memo(function AssistantMessage({ msg }: { msg: Message }) {
+  return (
+    <div className="pr-4 w-full min-w-0">
+      <div className="flex flex-col max-w-5xl min-w-0">
+        <AiMarkdown id={msg.messageId} content={msg.message} />
+      </div>
+    </div>
+  );
+});
+
+const MessageItem = memo(function MessageItem({ msg }: { msg: Message }) {
+  return (
+    <div
+      data-role={msg.role}
+      className={cn(
+        "flex [overflow-anchor:none]",
+        msg.role === "user" && "flex-row-reverse"
+      )}
+    >
+      {msg.role === "user" ? (
+        <UserMessage msg={msg} />
+      ) : (
+        <AssistantMessage msg={msg} />
+      )}
+    </div>
+  );
+});
+
+/* ---------------------- */
+/*     MAIN COMPONENT     */
+/* ---------------------- */
+
 export const MessageList = forwardRef<HTMLDivElement, MessageListProps>(
   function MessageList({ messages, projectId, className }, ref) {
     const dispatch = useDispatch();
@@ -26,38 +72,6 @@ export const MessageList = forwardRef<HTMLDivElement, MessageListProps>(
     const openPromptDialog = (type: string) => {
       dispatch(openDialog(type));
     };
-
-    const UserMessage = ({ msg }: { msg: Message }) => (
-      <div className="flex justify-end text-foreground/90 max-w-[80%] pr-4">
-        <div className="p-3 bg-secondary/50 text-sm text-left rounded-lg whitespace-break-spaces">
-          {msg.message}
-        </div>
-      </div>
-    );
-
-    const AssistantMessage = ({ msg }: { msg: Message }) => (
-      <div className="pr-4 w-full min-w-0">
-        <div className="flex flex-col max-w-5xl min-w-0">
-          <AiMarkdown id={msg.messageId} content={msg.message} />
-        </div>
-      </div>
-    );
-
-    const MessageItem = ({ msg }: { msg: Message }) => (
-      <div
-        data-role={msg.role}
-        className={cn(
-          "flex [overflow-anchor:none]",
-          msg.role === "user" && "flex-row-reverse"
-        )}
-      >
-        {msg.role === "user" ? (
-          <UserMessage msg={msg} />
-        ) : (
-          <AssistantMessage msg={msg} />
-        )}
-      </div>
-    );
 
     const PromptButtons = () => (
       <div className="flex gap-4">

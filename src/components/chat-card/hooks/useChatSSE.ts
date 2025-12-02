@@ -9,6 +9,29 @@ import { sseService } from "@services/sse";
 import { VITE_API_URL } from "@configs/env";
 import { store } from "@store/store";
 
+const buffers: Record<string, string> = {};
+const timers: Record<string, any> = {};
+
+function batchAppend(dispatch, messageId: string, chunk: string, delay = 30) {
+  if (!buffers[messageId]) buffers[messageId] = "";
+  buffers[messageId] += chunk;
+
+  if (timers[messageId]) return;
+
+  timers[messageId] = setTimeout(() => {
+    dispatch(
+      appendToCurrentStream({
+        messageId,
+        chunk: buffers[messageId],
+      })
+    );
+
+    buffers[messageId] = "";
+    clearTimeout(timers[messageId]);
+    timers[messageId] = null;
+  }, delay);
+}
+
 export function useChatSSE({ projectId }) {
   const dispatch = useAppDispatch();
 
@@ -35,7 +58,7 @@ export function useChatSSE({ projectId }) {
           })
         );
       } else {
-        dispatch(appendToCurrentStream({ chunk, messageId }));
+        batchAppend(dispatch, messageId, chunk);
       }
     },
     [dispatch, projectId]

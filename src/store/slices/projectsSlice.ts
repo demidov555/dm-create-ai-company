@@ -3,7 +3,7 @@ import api from "@services/api";
 import { notificationService } from "@services/notification";
 
 export interface ProjectSummary {
-  projectId: number;
+  projectId: string;
   agentCount: number;
   description: string;
   lastUpdated: string;
@@ -40,14 +40,14 @@ const projectsSlice = createSlice({
         notificationService.error('Ошибка загрузки проектов');
       })
 
-      .addCase(addProject.pending, (state) => {
+      .addCase(createProject.pending, (state) => {
         state.isLoadingActionProject = true;
       })
-      .addCase(addProject.fulfilled, (state) => {
+      .addCase(createProject.fulfilled, (state) => {
         state.isLoadingActionProject = false;
         notificationService.success('Проект создан');
       })
-      .addCase(addProject.rejected, (state) => {
+      .addCase(createProject.rejected, (state) => {
         state.isLoadingActionProject = false;
         notificationService.error('Ошибка создания проекта');
       })
@@ -55,7 +55,8 @@ const projectsSlice = createSlice({
       .addCase(deleteProject.pending, (state) => {
         state.isLoadingActionProject = true;
       })
-      .addCase(deleteProject.fulfilled, (state) => {
+      .addCase(deleteProject.fulfilled, (state, action) => {
+        state.list = state.list.filter(p => p.projectId !== action.payload);
         state.isLoadingActionProject = false;
         notificationService.success('Проект удален');
       })
@@ -75,15 +76,17 @@ export const fetchProjects = createAsyncThunk<ProjectSummary[], void, { rejectVa
   }
 });
 
-export const deleteProject = createAsyncThunk<void, string, { rejectValue: string }>("projects/delete", async (id, { rejectWithValue }) => {
+export const deleteProject = createAsyncThunk<string, string, { rejectValue: string }>("projects/delete", async (id, { rejectWithValue }) => {
   try {
-    await api.delete(`/projects/${id}`);
+    const result = await api.delete(`/projects/${id}`);
+
+    return result.data.projectId
   } catch (err: any) {
     return rejectWithValue(err.message || "Failed to fetch projects");
   }
 });
 
-export const addProject = createAsyncThunk<number, any, { rejectValue: string }>("projects/create", async (body, { rejectWithValue }) => {
+export const createProject = createAsyncThunk<number, any, { rejectValue: string }>("projects/create", async (body, { rejectWithValue }) => {
   try {
     const result = await api.post(`/project_create`, body);
 

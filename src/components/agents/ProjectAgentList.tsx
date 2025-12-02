@@ -17,7 +17,6 @@ export function ProjectAgentList({ agents }: ProjectAgentListProps) {
         <Loading />
       ) : agents.length > 0 ? (
         <>
-          <h2 className="text-lg text-foreground mb-4">Команда агентов</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {agents.map((agent) => (
               <AgentCard
