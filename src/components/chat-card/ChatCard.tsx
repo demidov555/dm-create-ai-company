@@ -19,7 +19,7 @@ export function ChatCard({ projectId, messages, restartSSE }: ChatCardProps) {
   const isLoadingMessage = useAppSelector(selectIsLoadingMessage);
   const isTyping = useAppSelector(selectIsTyping);
 
-  const { scrollRef } = useChatScroll(messages);
+  const { scrollRef } = useChatScroll(messages, projectId);
 
   const handleSendMessage = (text: string) => {
     const value = text.trim();
@@ -56,7 +56,7 @@ export function ChatCard({ projectId, messages, restartSSE }: ChatCardProps) {
         className="overflow-y-auto"
       >
         {isLoadingMessages ? (
-         <Loading />
+          <Loading />
         ) : (
           <>
             <MessageList messages={messages} projectId={projectId} />
