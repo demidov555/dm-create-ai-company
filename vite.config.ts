@@ -15,6 +15,7 @@ export default defineConfig({
       '@components': path.resolve(__dirname, './src/components'),
       '@configs': path.resolve(__dirname, './configs'),
       '@utils': path.resolve(__dirname, './src/utils'),
+      '@hooks': path.resolve(__dirname, './src/hooks'),
     },
   },
   build: {
@@ -22,7 +23,6 @@ export default defineConfig({
     outDir: 'build',
   },
   server: {
-    port: 4200,
-    open: true,
+    port: 4200
   },
 });

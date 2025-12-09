@@ -1,47 +1,71 @@
-import { Bot, CheckCircle2, Loader2 } from "lucide-react";
 import { Card } from "@ui/card";
 import { Badge } from "@ui/badge";
+import {
+  AgentStatusEnum,
+  AgentTaskEnum,
+  AgentTaskRU,
+} from "@store/slices/projectStatusSlice";
+import { Bot, CheckCircle2, Loader2 } from "lucide-react";
+
+type StatusConfig = {
+  label: string;
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+  className: string;
+  spin?: boolean;
+};
+
+const STATUS_CONFIG: Record<AgentStatusEnum, StatusConfig> = {
+  [AgentStatusEnum.IDLE]: {
+    label: "Ожидает",
+    icon: Bot,
+    className: "bg-gray-500/10 text-gray-600",
+  },
+  [AgentStatusEnum.WORKING]: {
+    label: "Работает",
+    icon: Loader2,
+    className: "bg-blue-500/10 text-blue-700",
+    spin: true,
+  },
+  [AgentStatusEnum.WAITING]: {
+    label: "Ждёт",
+    icon: Bot,
+    className: "bg-gray-500/10 text-gray-600",
+  },
+  [AgentStatusEnum.COMPLETED]: {
+    label: "Выполнено",
+    icon: CheckCircle2,
+    className: "bg-green-500/10 text-green-700",
+  },
+  [AgentStatusEnum.ERROR]: {
+    label: "Ошибка",
+    icon: Bot,
+    className: "bg-red-500/10 text-red-700",
+  },
+};
+
+export const HIDDEN_TASKS = new Set<AgentTaskEnum>([]);
 
 interface AgentCardProps {
+  agentId: string;
   name: string;
   role: string;
-  status: "idle" | "working" | "completed";
-  currentTask?: string;
+  status?: AgentStatusEnum;
+  currentTask?: AgentTaskEnum | null;
 }
 
-export function AgentCard({ name, role, status, currentTask }: AgentCardProps) {
-  const getStatusIcon = () => {
-    switch (status) {
-      case "working":
-        return <Loader2 className="h-4 w-4 animate-spin text-blue-600" />;
-      case "completed":
-        return <CheckCircle2 className="h-4 w-4 text-green-600" />;
-      default:
-        return <Bot className="h-4 w-4 text-gray-400" />;
-    }
-  };
+export function AgentCard({ agentId, name, role, status, currentTask }: AgentCardProps) {
+  const fallbackConfig = STATUS_CONFIG[AgentStatusEnum.IDLE];
+  const cfg: StatusConfig =
+    (status && STATUS_CONFIG[status]) || fallbackConfig;
 
-  const getStatusLabel = () => {
-    switch (status) {
-      case "working":
-        return "Работает";
-      case "completed":
-        return "Выполнено";
-      default:
-        return "Ожидает";
-    }
-  };
+  const Icon = cfg.icon;
 
-  const getStatusColor = () => {
-    switch (status) {
-      case "working":
-        return "bg-blue-500/10 text-blue-700";
-      case "completed":
-        return "bg-green-500/10 text-green-700";
-      default:
-        return "bg-gray-500/10 text-gray-600";
-    }
-  };
+  const visibleTask =
+    currentTask &&
+      !HIDDEN_TASKS.has(currentTask) &&
+      AgentTaskRU[currentTask]
+      ? AgentTaskRU[currentTask]
+      : null;
 
   return (
     <Card className="p-5 hover:shadow-md transition-shadow border border-border">
@@ -49,20 +73,28 @@ export function AgentCard({ name, role, status, currentTask }: AgentCardProps) {
         <div className="p-3 bg-primary/10 rounded-xl">
           <Bot className="h-6 w-6 text-primary" />
         </div>
+
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
             <h3 className="text-sm text-foreground">{name}</h3>
-            {getStatusIcon()}
+            <Icon
+              className={`h-4 w-4 ${cfg.className} ${cfg.spin ? "animate-spin" : ""
+                }`}
+            />
           </div>
+
           <p className="text-xs text-muted-foreground mb-3">{role}</p>
-          <div className="flex items-center gap-2 mb-2">
-            <Badge variant="secondary" className={`text-xs ${getStatusColor()}`}>
-              {getStatusLabel()}
+
+          {agentId !== 'ProductManager' && (
+            <Badge variant="secondary" className={`text-xs ${cfg.className}`}>
+              {cfg.label}
             </Badge>
-          </div>
-          {currentTask && (
+          )}
+
+
+          {visibleTask && (
             <p className="text-xs text-muted-foreground mt-2 line-clamp-2">
-              {currentTask}
+              {visibleTask}
             </p>
           )}
         </div>

@@ -15,21 +15,25 @@ import { ProjectOverview } from "@components/project-overview/ProjectOverview";
 import { ProjectAgentList } from "@components/agents/ProjectAgentList";
 import { selectUser } from "@store/selectors/authSelectors";
 import { Loading } from "@components/Loading";
+import { useProjectStatusSSE } from "@hooks/useProjectStatusSSE";
+import { useChatSSE } from "@hooks/useChatSSE";
+import { updateAgentStatus, updateProjectProgress, updateProjectStatus } from "@store/slices/projectStatusSlice";
 
 export function ProjectDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+
   const [activeTab, setActiveTab] = useState("overview");
 
-  const project = useAppSelector((state) => {
-    return id ? selectProjectDetails(state) : null;
-  });
-  const isLoadingProject = useAppSelector(selectIsLoadingProjectDetails);
-  const user = useAppSelector(selectUser);
-  const error = useAppSelector(selectErrorProjectDetails);
+  const project = useAppSelector(selectProjectDetails);
   const messages = useAppSelector(selectMessages);
   const agents = useAppSelector(selectAgents);
+  const isLoadingProject = useAppSelector(selectIsLoadingProjectDetails);
+  const error = useAppSelector(selectErrorProjectDetails);
+
+  const chatSSE = useChatSSE({ projectId: project?.projectId });
+  const projectStatusSSE = useProjectStatusSSE({ projectId: project?.projectId });
 
   useEffect(() => {
     if (!id) return;
@@ -37,36 +41,25 @@ export function ProjectDetailPage() {
     dispatch(fetchProject(id))
       .unwrap()
       .then((response) => {
+        dispatch(updateProjectStatus(response.status));
+        dispatch(updateProjectProgress(response.metrica.progress));
         dispatch(getHistoryMessages(response.projectId));
-        dispatch(getAgentByIds({ projectId: response.projectId, agentIds: response.agentIds }));
+        dispatch(getAgentByIds({ projectId: response.projectId, agentIds: response.agentIds })).unwrap()
+          .then(agents => {
+            agents.map(a => dispatch(updateAgentStatus({ agent_id: a.agentId, status: a.status, current_task: a.currentTask })))
+          })
+
       });
   }, [dispatch, id]);
 
-  if (isLoadingProject && !error) {
-    return <Loading />
-  }
+  if (isLoadingProject && !error) return <Loading />
 
   if (error?.response?.data.status === 404) {
     return (
       <div className="flex-1 flex items-center justify-center bg-background">
         <div className="text-center">
           <h2 className="text-2xl mb-4 text-foreground">Проект не найден</h2>
-          <Button onClick={() => navigate("/projects")}>
-            Вернуться к проектам
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
-  if (error?.code === 'ERR_NETWORK') {
-    return (
-      <div className="flex-1 flex items-center justify-center bg-background">
-        <div className="text-center">
-          <h2 className="text-2xl mb-4 text-foreground">Ошибка сети. Не удалось загрузить проект</h2>
-          <Button onClick={() => dispatch(fetchProject(id))}>
-            Обновить
-          </Button>
+          <Button onClick={() => navigate("/projects")}>Вернуться к проектам</Button>
         </div>
       </div>
     );
@@ -88,7 +81,7 @@ export function ProjectDetailPage() {
           </TabsContent>
 
           <TabsContent value="tasks">
-            <ChatCard projectId={project.projectId} messages={messages} />
+            <ChatCard projectId={project.projectId} messages={messages} restartSSE={chatSSE.restart} />
           </TabsContent>
 
           <TabsContent value="team">
@@ -96,7 +89,12 @@ export function ProjectDetailPage() {
           </TabsContent>
 
           <TabsContent value="settings">
-            <ProjectSettings projectId={project.projectId} shortId={id} name={project.name} description={project.description} />
+            <ProjectSettings
+              projectId={project.projectId}
+              shortId={id}
+              name={project.name}
+              description={project.description}
+            />
           </TabsContent>
         </Tabs>
       </div>

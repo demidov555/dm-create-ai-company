@@ -2,12 +2,17 @@ import { Card } from "@ui/card";
 import { StatusPanel } from "./StatusPanel";
 import { Code2, FileText, TrendingUp } from "lucide-react";
 import { ProjectDetailsInfo } from "@store/slices/projectDetailsSlice";
+import { useAppSelector } from "@store/hooks";
+import { selectProjectProgress, selectProjectStatus } from "@store/selectors/projectStatusSelectors";
 
 type ProjectOverviewProps = {
   project: ProjectDetailsInfo;
 };
 
 export function ProjectOverview({ project }: ProjectOverviewProps) {
+  const projectStatus = useAppSelector(selectProjectStatus);
+  const projectProgress = useAppSelector(selectProjectProgress);
+
   return (
     <>
       <Card className="mb-4">
@@ -19,10 +24,9 @@ export function ProjectOverview({ project }: ProjectOverviewProps) {
 
       <div className="mb-4">
         <StatusPanel
-          percent={project.metrica.progress.percent}
-          status={project.status}
-          lastUpdated={project.metrica.progress.lastUpdate}
-          onEdit={() => alert("Режим редактирования")}
+          percent={projectProgress.percent}
+          status={projectStatus}
+          lastUpdated={projectProgress.lastUpdate}
         />
       </div>
 

@@ -5,10 +5,11 @@ import {
   appendToCurrentStream,
   endStream,
 } from "@store/slices/chatSlice";
-import { sseService } from "@services/sse";
+import { SSEService } from "@services/sse";
 import { VITE_API_URL } from "@configs/env";
 import { store } from "@store/store";
 
+export const sseService = new SSEService();
 const buffers: Record<string, string> = {};
 const timers: Record<string, any> = {};
 
@@ -38,7 +39,7 @@ export function useChatSSE({ projectId }) {
   /** ===========================
    *  SSE EVENT HANDLERS
    * ========================== */
-  const onMessage = useCallback(
+  const handleMessage = useCallback(
     (data: any) => {
       if (data.role !== "agent") return;
       const messageId = data.message_id;
@@ -64,14 +65,14 @@ export function useChatSSE({ projectId }) {
     [dispatch, projectId]
   );
 
-  const onEnd = useCallback(() => dispatch(endStream()), [dispatch]);
+  const handleEnd = useCallback(() => dispatch(endStream()), [dispatch]);
 
-  const onCancel = useCallback(() => {
+  const handleCancel = useCallback(() => {
     dispatch(endStream());
     stop();
   }, [dispatch]);
 
-  const onError = useCallback(() => {
+  const handleError = useCallback(() => {
     stop();
   }, [dispatch]);
 
@@ -82,17 +83,18 @@ export function useChatSSE({ projectId }) {
     console.log("▶️ Subscribing SSE listeners");
     sseService.off();
 
-    sseService.on("message", onMessage);
-    sseService.on("end", onEnd);
-    sseService.on("cancel", onCancel);
-    sseService.on("error", onError);
-  }, [onMessage, onEnd, onCancel, onError]);
+    sseService.on("message", handleMessage);
+    sseService.on("end", handleEnd);
+    sseService.on("cancel", handleCancel);
+    sseService.on("error", handleError);
+  }, [handleMessage, handleEnd, handleCancel, handleError]);
 
   /** ===========================
    *  STOP — снять listeners, но НЕ закрывать SSE
    * ========================== */
   const stop = useCallback(() => {
-    console.log("⏹ Stopping SSE (off listeners only)");
+    console.log("⏹ Stop CHAT SSE listeners");
+
     sseService.off();
     dispatch(endStream());
   }, []);
@@ -110,12 +112,18 @@ export function useChatSSE({ projectId }) {
    * LIFECYCLE
    * ========================== */
   useEffect(() => {
+    if (!projectId) {
+      return;
+    }
+
     const url = `${VITE_API_URL}/chat_stream/${projectId}`;
     sseService.connect(url);
 
     start();
 
     return () => {
+      console.log("🔌 Closing status project SSE");
+      sseService.off();
       sseService.close();
     };
   }, [projectId, start]);

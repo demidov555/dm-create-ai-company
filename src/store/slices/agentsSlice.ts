@@ -1,14 +1,23 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import api from "@services/api";
 import { notificationService } from "@services/notification";
+import { AgentStatusEnum, AgentTaskEnum } from "./projectStatusSlice";
+
+
+export type AgentLiveState = {
+  status: AgentStatusEnum;
+  current_task?: AgentTaskEnum
+  progress?: number;
+  stage?: string;
+};
 
 export interface Agent {
   projectId: string;
   agentId: string;
-  currentTask: string;
+  currentTask: AgentTaskEnum;
   name: string;
   role: string;
-  status: "idle" | "working" | "completed";
+  status: AgentStatusEnum;
   required: boolean;
 }
 
@@ -46,7 +55,6 @@ const agentsSlice = createSlice({
       })
       .addCase(getAgents.fulfilled, (state, action) => {
         state.agents = [];
-        console.log(action.payload)
         state.agents.push(...action.payload);
         state.isLoadingList = false;
       })

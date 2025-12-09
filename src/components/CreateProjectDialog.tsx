@@ -32,7 +32,7 @@ export function CreateProjectDialog({ isLoading }: { isLoading: boolean }) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [selectedAgents, setSelectedAgents] = useState<string[]>([
-    "product_manager",
+    "ProductManager",
   ]);
 
   useEffect(() => {
@@ -49,7 +49,7 @@ export function CreateProjectDialog({ isLoading }: { isLoading: boolean }) {
       .then(createdProjectId => {
         setName("");
         setDescription("");
-        setSelectedAgents(["product_manager"]);
+        setSelectedAgents(["ProductManager"]);
         dispatch(closeDialog(dialogName));
 
         navigate(`/projects/${createdProjectId}`);
@@ -61,7 +61,7 @@ export function CreateProjectDialog({ isLoading }: { isLoading: boolean }) {
   };
 
   const toggleAgent = (agentId: string) => {
-    if (agentId === "product_manager") return;
+    if (agentId === "ProductManager") return;
 
     setSelectedAgents((prev) =>
       prev.includes(agentId)

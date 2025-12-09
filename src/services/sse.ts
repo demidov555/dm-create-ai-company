@@ -1,11 +1,11 @@
-class SSEService {
+export class SSEService {
   private eventSource: EventSource | null = null;
-  private listeners: Map<string, EventListener> = new Map();
+  private listeners: Map<string, Set<EventListener>> = new Map();
 
   connect(url: string, opts?: EventSourceInit) {
-    if (this.eventSource) return this.eventSource;
-
-    this.eventSource = new EventSource(url, opts);
+    if (!this.eventSource) {
+      this.eventSource = new EventSource(url, opts);
+    }
     return this.eventSource;
   }
 
@@ -24,24 +24,29 @@ class SSEService {
     };
 
     this.eventSource.addEventListener(event, handler);
-    this.listeners.set(event, handler);
+
+    if (!this.listeners.has(event)) {
+      this.listeners.set(event, new Set());
+    }
+    this.listeners.get(event)!.add(handler);
   }
 
   off(event?: string) {
     if (!this.eventSource) return;
 
     if (event) {
-      const handler = this.listeners.get(event);
-      if (handler) {
-        this.eventSource.removeEventListener(event, handler);
+      const handlers = this.listeners.get(event);
+      if (handlers) {
+        handlers.forEach(h => this.eventSource!.removeEventListener(event, h));
         this.listeners.delete(event);
       }
-    } else {
-      for (const [evt, handler] of this.listeners) {
-        this.eventSource.removeEventListener(evt, handler);
-      }
-      this.listeners.clear();
+      return;
     }
+
+    for (const [evt, handlers] of this.listeners) {
+      handlers.forEach(h => this.eventSource!.removeEventListener(evt, h));
+    }
+    this.listeners.clear();
   }
 
   close() {
@@ -52,5 +57,3 @@ class SSEService {
     }
   }
 }
-
-export const sseService = new SSEService();

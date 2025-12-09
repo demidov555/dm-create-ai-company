@@ -1,13 +1,14 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import api, { CommonError } from "../../services/api";
 import { notificationService } from "@services/notification";
+import { ProjectStatusEnum } from "./projectStatusSlice";
 
 export interface ProjectDetailsInfo {
   projectId: string;
   shortId: string;
   name: string;
   description: string;
-  status: string;
+  status: ProjectStatusEnum;
   agentIds: string[];
   lastUpdated: string;
   metrica: {

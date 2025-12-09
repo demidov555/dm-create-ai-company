@@ -5,12 +5,14 @@ import agentsReducer from "./slices/agentsSlice";
 import projectDetailsSlice from "./slices/projectDetailsSlice";
 import chatReducer from "./slices/chatSlice";
 import authReducer from "./slices/authSlice";
+import projectStatusReducer from "./slices/projectStatusSlice";
 import { authMiddleware } from "./middleware/authMiddleware";
 
 export const store = configureStore({
   reducer: {
     projects: projectsReducer,
     projectDetails: projectDetailsSlice,
+    projectStatus: projectStatusReducer,
     ui: uiReducer,
     agents: agentsReducer,
     chat: chatReducer,

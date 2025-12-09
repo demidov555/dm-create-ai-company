@@ -3,23 +3,22 @@ import { TaskForm } from "./TaskForm";
 import { selectIsLoadingMessage, selectIsLoadingMessages, selectIsTyping } from "@store/selectors/chatSelectors";
 import { useAppDispatch, useAppSelector } from "@store/hooks";
 import { cancelAiTyping, Message, sendUserMessage } from "@store/slices/chatSlice";
-import { useChatSSE } from "./hooks/useChatSSE";
 import { LoadingIndicator } from "./LoadingIndicator";
 import { useChatScroll } from "./hooks/useChatScroll";
 import { Loading } from "@components/Loading";
 
 type ChatCardProps = {
   projectId: string;
-  messages: Message[]
+  messages: Message[];
+  restartSSE: () => void;
 };
 
-export function ChatCard({ projectId, messages }: ChatCardProps) {
+export function ChatCard({ projectId, messages, restartSSE }: ChatCardProps) {
   const dispatch = useAppDispatch();
   const isLoadingMessages = useAppSelector(selectIsLoadingMessages);
   const isLoadingMessage = useAppSelector(selectIsLoadingMessage);
   const isTyping = useAppSelector(selectIsTyping);
 
-  const { restart } = useChatSSE({ projectId });
   const { scrollRef } = useChatScroll(messages);
 
   const handleSendMessage = (text: string) => {
@@ -35,13 +34,13 @@ export function ChatCard({ projectId, messages }: ChatCardProps) {
 
   const handleCancelAiTyping = () => {
     dispatch(cancelAiTyping(projectId));
-    restart();
+    restartSSE();
   }
 
   const handleCancelAiTypingWhileUserSendMessage = (userMessage: string) => {
     dispatch(cancelAiTyping(projectId));
     handleSendMessage(userMessage)
-    restart();
+    restartSSE();
   }
 
   return (

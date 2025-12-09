@@ -18,7 +18,8 @@
       "@store/*": ["src/store/*"],
       "@components/*": ["src/components/*"],
       "@configs/*": ["./configs/*"],
-      "@utils/*": ["./src/utils/*"]
+      "@utils/*": ["./src/utils/*"],
+      "@hooks/*": ["./src/hooks/*"]
     }
   },
   "include": ["src", "index.html"],
