@@ -6,6 +6,8 @@ import { cancelAiTyping, Message, sendUserMessage } from "@store/slices/chatSlic
 import { LoadingIndicator } from "./LoadingIndicator";
 import { useChatScroll } from "./hooks/useChatScroll";
 import { Loading } from "@components/Loading";
+import { Button } from "@ui/button";
+import { ArrowDown } from "lucide-react";
 
 type ChatCardProps = {
   projectId: string;
@@ -19,7 +21,7 @@ export function ChatCard({ projectId, messages, restartSSE }: ChatCardProps) {
   const isLoadingMessage = useAppSelector(selectIsLoadingMessage);
   const isTyping = useAppSelector(selectIsTyping);
 
-  const { scrollRef } = useChatScroll(messages, projectId);
+  const { scrollRef, isScrolledUp, scrollToBottom } = useChatScroll(messages, projectId);
 
   const handleSendMessage = (text: string) => {
     const value = text.trim();
@@ -43,6 +45,24 @@ export function ChatCard({ projectId, messages, restartSSE }: ChatCardProps) {
     restartSSE();
   }
 
+  const ScrollToBottomButton = () => (
+    <Button
+      onClick={scrollToBottom}
+      variant="ghost"
+      className="
+        absolute 
+        bottom-28
+        left-1/2  
+        z-50
+        rounded-full
+        border-border
+        border
+      "
+    >
+      <ArrowDown />
+    </Button>
+  )
+
   return (
     <div
       style={{
@@ -63,6 +83,9 @@ export function ChatCard({ projectId, messages, restartSSE }: ChatCardProps) {
             <div className="flex h-[26px]">{isLoadingMessage && <LoadingIndicator />}</div>
           </>
         )}
+
+        {isScrolledUp && <ScrollToBottomButton />}
+
       </div>
       <TaskForm
         isTyping={isTyping}
