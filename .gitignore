@@ -44,3 +44,5 @@ secrets/
 # Тестовые отчёты и кэши
 /test-results/
 .jest-cache/
+
+/configs/*
